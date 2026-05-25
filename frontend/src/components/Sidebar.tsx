@@ -6,22 +6,30 @@ import {
   PlusOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import type { ReactNode } from "react";
+import type { Conversation } from "./ChatWindow";
 
-const menuItems: { icon: ReactNode; label: string }[] = [];
+interface Props {
+  conversations: Conversation[];
+  onNewChat: () => void;
+  onSelectConversation: (conv: Conversation) => void;
+}
 
-function Sidebar() {
+function Sidebar({ conversations, onNewChat, onSelectConversation }: Props) {
   return (
     <aside className="sidebar">
       <div className="sidebar-brand">
         <div className="brand-mark">
-          <img alt="cloudmind logo" src="/logo-options/cloudmind-logo-option-1.svg" />
+          <img
+            alt="cloudmind logo"
+            src="/logo-options/cloudmind-logo-option-1.svg"
+          />
         </div>
         <span>CloudMind</span>
         <MenuFoldOutlined className="sidebar-collapse" />
       </div>
 
-      <button className="new-chat-button" type="button">
+      {/* 新对话按钮 */}
+      <button className="new-chat-button" type="button" onClick={onNewChat}>
         <span>
           <MessageOutlined />
           新对话
@@ -29,17 +37,37 @@ function Sidebar() {
         <PlusOutlined />
       </button>
 
+      {/* 对话历史 */}
       <nav className="sidebar-nav">
         <div className="nav-heading">
           <HistoryOutlined />
           对话历史
         </div>
-        {menuItems.map((item) => (
-          <button className="nav-item" key={item.label} type="button">
-            {item.icon}
-            <span>{item.label}</span>
-          </button>
-        ))}
+        {conversations.length === 0 ? (
+          <div style={{ padding: "8px 12px", fontSize: "12px", color: "#aaa" }}>
+            暂无历史记录
+          </div>
+        ) : (
+          conversations.map((conv) => (
+            <button
+              className="nav-item"
+              key={conv.id}
+              type="button"
+              onClick={() => onSelectConversation(conv)}
+            >
+              <MessageOutlined />
+              <span
+                style={{
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {conv.title}
+              </span>
+            </button>
+          ))
+        )}
       </nav>
 
       <div className="sidebar-user">

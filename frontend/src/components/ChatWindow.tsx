@@ -1,3 +1,4 @@
+// src/components/ChatWindow.tsx
 import { useState } from "react";
 import Sidebar from "./Sidebar";
 import WelcomeScreen from "./WelcomeScreen";
@@ -9,11 +10,42 @@ export interface Message {
   content: string;
 }
 
+export interface Conversation {
+  id: string;
+  title: string;
+  messages: Message[];
+}
+
 const tabItems = ["Multi-Agent", "Billing", "Promotion", "FinOps"];
 
 function ChatWindow() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [sessionId, setSessionId] = useState("session_001");
+
+  // 新对话
+  const handleNewChat = () => {
+    if (messages.length > 0) {
+      const title = messages[0].content.slice(0, 18) + "...";
+      setConversations((prev) => [
+        {
+          id: sessionId,
+          title,
+          messages,
+        },
+        ...prev,
+      ]);
+    }
+    setSessionId(`session_${Date.now()}`);
+    setMessages([]);
+  };
+
+  // 切换历史对话
+  const handleSelectConversation = (conv: Conversation) => {
+    setMessages(conv.messages);
+    setSessionId(conv.id);
+  };
 
   const handleSend = async (query: string) => {
     if (!query.trim()) return;
@@ -30,7 +62,7 @@ function ChatWindow() {
         body: JSON.stringify({
           query,
           user_id: "user_1001",
-          session_id: "session_001",
+          session_id: sessionId,
         }),
       });
 
@@ -68,7 +100,11 @@ function ChatWindow() {
 
   return (
     <div className="app-shell">
-      <Sidebar />
+      <Sidebar
+        conversations={conversations}
+        onNewChat={handleNewChat}
+        onSelectConversation={handleSelectConversation}
+      />
 
       <main className="workspace">
         <header className="topbar">
@@ -82,7 +118,6 @@ function ChatWindow() {
               ))}
             </div>
           </div>
-
         </header>
 
         <section className="content-area">

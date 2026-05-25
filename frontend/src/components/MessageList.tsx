@@ -104,22 +104,59 @@ function MessageList({ messages, loading }: Props) {
           )}
 
           <div className={`message-bubble ${msg.role}`}>
-            {renderContent(msg.content)}
+            {/* 内容为空时显示思考动画 */}
             {msg.role === "assistant" &&
-              loading &&
-              i === messages.length - 1 && (
-                <span
-                  style={{
-                    display: "inline-block",
-                    width: "2px",
-                    height: "14px",
-                    background: "#3b82f6",
-                    marginLeft: "4px",
-                    verticalAlign: "middle",
-                    animation: "blink 1s infinite",
-                  }}
-                />
-              )}
+            loading &&
+            i === messages.length - 1 &&
+            msg.content === "" ? (
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  color: "#888",
+                  fontSize: "13px",
+                }}
+              >
+                <span style={{ display: "flex", gap: "4px" }}>
+                  {[0, 1, 2].map((i) => (
+                    <span
+                      key={i}
+                      style={{
+                        width: "6px",
+                        height: "6px",
+                        borderRadius: "50%",
+                        background: "#4f8ef7",
+                        display: "inline-block",
+                        animation: "blink 1s infinite",
+                        animationDelay: `${i * 0.2}s`,
+                      }}
+                    />
+                  ))}
+                </span>
+                正在思考...
+              </div>
+            ) : (
+              <>
+                {renderContent(msg.content)}
+                {msg.role === "assistant" &&
+                  loading &&
+                  i === messages.length - 1 &&
+                  msg.content !== "" && (
+                    <span
+                      style={{
+                        display: "inline-block",
+                        width: "2px",
+                        height: "14px",
+                        background: "#3b82f6",
+                        marginLeft: "4px",
+                        verticalAlign: "middle",
+                        animation: "blink 1s infinite",
+                      }}
+                    />
+                  )}
+              </>
+            )}
           </div>
 
           {msg.role === "user" && (
