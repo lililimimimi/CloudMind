@@ -1,0 +1,29 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="cloudmind-bg" x1="18" y1="18" x2="110" y2="110" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#61B4FF"/>
+      <stop offset="1" stop-color="#1263FF"/>
+    </linearGradient>
+    <linearGradient id="cloudmind-line" x1="34" y1="40" x2="92" y2="92" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#CFE6FF"/>
+    </linearGradient>
+    <filter id="cloudmind-shadow" x="10" y="10" width="108" height="108" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+      <feOffset dy="8"/>
+      <feGaussianBlur stdDeviation="8"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.03 0 0 0 0 0.22 0 0 0 0 0.67 0 0 0 0.25 0"/>
+      <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_1_8"/>
+      <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_1_8" result="shape"/>
+    </filter>
+  </defs>
+  <g filter="url(#cloudmind-shadow)">
+    <rect x="22" y="18" width="84" height="84" rx="28" fill="url(#cloudmind-bg)"/>
+    <path d="M42.5 73.5C36.98 73.5 32.5 69.08 32.5 63.62C32.5 58.74 36.04 54.68 40.72 53.86C43.22 45.84 50.58 40 59.3 40C66.72 40 73.18 44.24 76.44 50.44C77.76 50.04 79.16 49.82 80.62 49.82C88.82 49.82 95.5 56.42 95.5 64.56C95.5 72.7 88.82 79.3 80.62 79.3H43.42" stroke="url(#cloudmind-line)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M53 67.5L63.5 57L75 68.5" stroke="#EAF5FF" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="53" cy="67.5" r="5.5" fill="#EAF5FF"/>
+    <circle cx="63.5" cy="57" r="5.5" fill="#EAF5FF"/>
+    <circle cx="75" cy="68.5" r="5.5" fill="#EAF5FF"/>
+  </g>
+</svg>

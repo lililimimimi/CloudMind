@@ -1,0 +1,19 @@
+<svg width="160" height="160" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="30" y1="20" x2="130" y2="140" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#6BCBFF"/>
+      <stop offset="0.48" stop-color="#267CFF"/>
+      <stop offset="1" stop-color="#123DCA"/>
+    </linearGradient>
+    <linearGradient id="cloud" x1="46" y1="54" x2="111" y2="101" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#DAEEFF"/>
+    </linearGradient>
+  </defs>
+  <path d="M80 18L131.1 47.5V106.5L80 136L28.9 106.5V47.5L80 18Z" fill="url(#bg)"/>
+  <path d="M52 91C44.8 91 39 85.3 39 78.2C39 71.8 43.7 66.5 49.9 65.5C53.4 56.1 62.5 49.4 73 49.4C82.8 49.4 91.3 55.1 95.3 63.4C97.4 62.5 99.7 62 102.1 62C111.5 62 119.1 69.5 119.1 78.8C119.1 88.1 111.5 95.6 102.1 95.6H53.2" stroke="url(#cloud)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M59 85H101" stroke="#F2FAFF" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="67" cy="85" r="6.5" fill="#F2FAFF"/>
+  <circle cx="80" cy="85" r="6.5" fill="#F2FAFF"/>
+  <circle cx="93" cy="85" r="6.5" fill="#F2FAFF"/>
+</svg>
