@@ -76,20 +76,33 @@ function ChatWindow() {
         const chunk = decoder.decode(value);
         const lines = chunk.split("\n");
 
-        for (const line of lines) {
-          if (!line.startsWith("data: ")) continue;
-          const text = line.replace("data: ", "");
-          if (text === "[DONE]") break;
+       for (const line of lines) {
+         if (!line.startsWith("data: ")) continue;
+         const rawText = line.replace("data: ", "").trim();
+         if (!rawText) continue;
 
-          setMessages((prev) => {
-            const updated = [...prev];
-            updated[updated.length - 1] = {
-              role: "assistant",
-              content: updated[updated.length - 1].content + text,
-            };
-            return updated;
-          });
-        }
+         try {
+           const parsed = JSON.parse(rawText);
+
+           // 收到结束信号
+           if (parsed.done) break;
+
+           // 追加内容
+           if (parsed.content) {
+             setMessages((prev) => {
+               const updated = [...prev];
+               updated[updated.length - 1] = {
+                 role: "assistant",
+                 content: updated[updated.length - 1].content + parsed.content,
+               };
+               return updated;
+             });
+           }
+         } catch {
+           // 解析失败跳过
+           continue;
+         }
+       }
       }
     } catch (err) {
       console.error(err);
