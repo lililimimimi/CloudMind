@@ -21,3 +21,7 @@ class AgentState(TypedDict):
 
     # 附加元数据，比如 is_finops_workflow 标记
     metadata: dict
+    
+    memory_context: str 
+    
+    

@@ -70,27 +70,33 @@ CPU/内存：x核 xG
 预估费用：每月约 xxx 元"""
 
     async def __call__(self, state: AgentState) -> Dict[str, Any]:
-        """
-        LangGraph 节点调用入口。
-        """
-
         print("💡 [RecommendationAgent] 开始处理选型推荐请求...")
 
-        # 用 create_react_agent 创建内部执行器
+        # 读取记忆上下文
+        memory_context = state.get("memory_context", "")
+        print(f"[RecommendationAgent] 记忆上下文：{memory_context[:100] if memory_context else '无'}")
+
+        # 把记忆注入到 system_prompt
+        full_prompt = self.system_prompt
+        if memory_context:
+            full_prompt = f"""{self.system_prompt}
+
+    【用户背景信息】:
+    {memory_context}
+
+    请根据以上用户背景信息，提供更有针对性的推荐。"""
+
         inner_agent = create_react_agent(
             model=self.llm,
-            tools=self.tools,   # 后面加入产品目录查询工具
-            prompt=self.system_prompt,
+            tools=self.tools,
+            prompt=full_prompt,
         )
 
-        # 把对话历史传给内部 agent
         result = await inner_agent.ainvoke({
             "messages": state["messages"]
         })
 
-        # 取出最后一条 AI 回复
         final_message = result["messages"][-1]
-
         print(f"[RecommendationAgent] 回复：{final_message.content[:50]}...")
 
         return {"messages": [final_message]}

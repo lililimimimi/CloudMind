@@ -53,6 +53,19 @@ class ProductAgentNode:
 
     async def __call__(self, state: AgentState) -> Dict[str, Any]:
         print("💡 [ProductAgent] 开始处理产品咨询请求...")
+        
+        # 读取记忆上下文
+        memory_context = state.get("memory_context", "")
+
+        # 把记忆注入到 system_prompt
+        full_prompt = self.system_prompt
+        if memory_context:
+            full_prompt = f"""{self.system_prompt}
+
+【用户背景信息】:
+{memory_context}
+
+请根据以上用户背景信息，提供更有针对性的推荐。"""
 
         inner_agent = create_react_agent(
             model=self.llm,

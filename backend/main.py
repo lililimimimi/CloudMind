@@ -1,10 +1,21 @@
 # backend/main.py
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from router.chat_router import router
 from service.chat_service import chat_service
 
-app = FastAPI(title="CloudMind API")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # 启动时初始化
+    await chat_service.initialize()
+    print("[Main] 服务启动完成")
+    yield
+    # 关闭时清理（可选）
+
+
+app = FastAPI(title="CloudMind API", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -15,12 +26,6 @@ app.add_middleware(
 )
 
 app.include_router(router, prefix="/api")
-
-# FastAPI 启动时初始化 Redis 连接
-@app.on_event("startup")
-async def startup():
-    await chat_service.initialize()
-    print("[Main] 服务启动完成")
 
 if __name__ == "__main__":
     import uvicorn
