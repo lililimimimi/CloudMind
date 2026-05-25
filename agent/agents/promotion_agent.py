@@ -1,58 +1,78 @@
-
+# agent/agents/promotion_agent.py
 # 作用：推广活动专员 Agent
-# 负责处理推广返佣、活动链接、海报生成等营销类需求
-# 目前先用 AI 模拟返回，后面接入 MCP 工具生成真实海报
+# 通过 MCP 工具获取推广物料、生成推广链接、生成 AI 海报
 
 import os
+import json
 from typing import Dict, Any
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
-from langchain_core.messages import AIMessage
+from langchain_mcp_adapters.client import MultiServerMCPClient
 from langgraph.prebuilt import create_react_agent
 
 from core.workflow.state import AgentState
+from agents.billing_agent import UserIdInjector
 
-# 加载环境变量
 load_dotenv()
 
 
 class PromotionAgentNode:
     """
     推广活动专员 Agent。
-    负责处理：
-    - 推广返佣链接生成
-    - 活动物料获取
-    - AI 海报生成
-    - 推广商品查询
+    负责处理推广返佣、活动物料、AI 海报生成等营销类需求。
     """
 
     def __init__(self):
-        # 初始化 LangChain 客户端
         self.llm = ChatOpenAI(
             api_key=os.getenv("SILICONFLOW_API_KEY"),
             base_url=os.getenv("SILICONFLOW_BASE_URL"),
             model=os.getenv("MODEL", "deepseek-ai/DeepSeek-V3"),
-            temperature=0.7,  # 推广文案可以适当有创意
+            temperature=0.7,
         )
 
-        # 暂时没有工具，后面接入 MCP 生成真实海报和链接
-        self.tools = []
+        # 读取 MCP 服务配置
+        config_path = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+            'config', 'mcp_servers.json'
+        )
+        with open(config_path, 'r', encoding='utf-8') as f:
+            self.mcp_config = json.load(f)
 
-        # 推广专员的系统提示词
-        self.system_prompt = """你是 CloudMind 云平台的推广活动专员。
-你负责处理以下类型的需求：
-- 推广返佣链接的生成和说明
-- 云产品活动物料的获取
-- AI 推广海报的生成
-- 当前可推广商品的查询
+        # 推广专员系统提示词
+        self.system_prompt = """你是一个热情的云服务平台推广营销专员。
+你的主要任务是帮助想要分享或推广云产品的用户，提供产品亮点、专属推广链接，并使用 AI 为其生成专属推广海报。
 
-回答要求：
+工作流程：
+
+1. 意图：随便看看或列出商品
+   当用户说"我想推广商品"、"有哪些商品可以推广"、"我要赚钱"时：
+   必须先调用 get_promotable_products 工具，获取所有可推广产品列表展示给用户。
+   给商品编上序号，引导用户进行选择。
+   此时不要调用生成物料的工具，等待用户回复。
+
+2. 意图：明确选择商品
+   当用户选择了具体产品（如"我要推第1个"、"选GPU"、"云服务器ECS"）时：
+   必须先调用 search_product_catalog 工具，传入关键词获取标准化的 product_id。
+
+3. 处理未找到的情况
+   如果 search_product_catalog 返回 not_found，不要捏造产品。
+   诚实告知用户该产品暂无单品推广活动，推荐工具返回的通用活动。
+
+4. 获取物料与生成海报
+   拿到合法的 product_id 后：
+   调用 get_promotion_materials 工具获取专属链接和卖点。
+   紧接着调用 generate_ai_poster 工具，根据产品卖点自己构思一段描述性 prompt 生成竖屏推广海报。
+   生图需要几十秒，调用前自然地告知用户稍等。
+
+注意事项：
+- 调用 get_promotion_materials 时 user_id 传 "auto"，系统自动注入
+- 最终回答必须包含：
+  热情的开场白和返佣比例
+  产品核心卖点
+  专属推广链接
+  用图片格式展示海报：![专属海报](海报URL)
 - 用纯中文回答
-- 语气友好积极
-- 简洁清晰，不超过300字
-- 不要用 markdown 格式
-- 目前工具还未接入，请告知用户功能即将上线，
-  并描述该功能的大致效果"""
+- 禁止编造产品ID、推广链接和海报URL"""
 
     async def __call__(self, state: AgentState) -> Dict[str, Any]:
         """
@@ -61,30 +81,49 @@ class PromotionAgentNode:
 
         print("💡 [PromotionAgent] 开始处理推广活动请求...")
 
-        # 用 create_react_agent 创建内部执行器
+        user_id = state.get("user_id", "unknown")
+
+        # 直接创建 client，不用 async with
+        client = MultiServerMCPClient(
+            connections=self.mcp_config.get("mcpServers", {}),
+            tool_interceptors=[UserIdInjector()]
+        )
+
+        all_tools = await client.get_tools()
+
+        # 推广相关工具
+        target_tools = [
+            "get_promotable_products",
+            "search_product_catalog",
+            "get_promotion_materials",
+            "generate_ai_poster",
+        ]
+        tools = [t for t in all_tools if t.name in target_tools]
+
+        print(f"[PromotionAgent] 可用工具：{[t.name for t in tools]}")
+
         inner_agent = create_react_agent(
             model=self.llm,
-            tools=self.tools,   # 后面加入 MCP 工具
+            tools=tools,
             prompt=self.system_prompt,
         )
 
-        # 把对话历史传给内部 agent
-        result = await inner_agent.ainvoke({
-            "messages": state["messages"]
-        })
+        config = {"configurable": {"user_id": user_id}}
 
-        # 取出最后一条 AI 回复
+        result = await inner_agent.ainvoke(
+            {"messages": state["messages"]},
+            config=config
+        )
+
         final_message = result["messages"][-1]
-
         print(f"[PromotionAgent] 回复：{final_message.content[:50]}...")
 
         return {"messages": [final_message]}
 
 
-# 全局实例，只初始化一次
+# 全局实例
 promotion_agent_node = PromotionAgentNode()
 
 
-# LangGraph 节点函数
 async def promotion_node(state: AgentState) -> Dict[str, Any]:
     return await promotion_agent_node(state)

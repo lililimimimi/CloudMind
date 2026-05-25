@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "cloud_platform": {
+      "command": "/Users/myadmin/Desktop/cloudMind/agent/.venv/bin/python",
+      "args": [
+        "/Users/myadmin/Desktop/cloudMind/agent/mcp_servers/cloud_platform_server.py"
+      ],
+      "transport": "stdio"
+    }
+  }
+}
