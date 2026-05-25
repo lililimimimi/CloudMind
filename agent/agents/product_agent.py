@@ -1,8 +1,4 @@
 # agent/agents/product_agent.py
-# 作用：产品咨询专员 Agent
-# 使用知识图谱工具查询产品结构化数据
-# 后面还会接入 RAG 向量检索工具
-
 import os
 from typing import Dict, Any
 from dotenv import load_dotenv
@@ -10,6 +6,7 @@ from langchain_openai import ChatOpenAI
 from langgraph.prebuilt import create_react_agent
 
 from core.workflow.state import AgentState
+from tools.vector_tool import query_vector_db
 from tools.graph_tool import query_knowledge_graph
 
 load_dotenv()
@@ -18,8 +15,9 @@ load_dotenv()
 class ProductAgentNode:
     """
     产品咨询专员 Agent。
-    负责回答云产品相关问题：功能介绍、规格说明、概念解释、操作指南。
-    使用知识图谱查询结构化数据，后面接入 RAG 查询文档知识。
+    配备两个工具：
+    - query_vector_db：查询文档知识库，适合概念解释、规则政策
+    - query_knowledge_graph：查询知识图谱，适合结构化参数查询
     """
 
     def __init__(self):
@@ -30,29 +28,30 @@ class ProductAgentNode:
             temperature=0.1,
         )
 
-        # 配备知识图谱工具
-        # 后面加入 RAG 工具后这里再加
-        self.tools = [query_knowledge_graph]
+        # 两个工具配合使用
+        self.tools = [query_vector_db, query_knowledge_graph]
 
         self.system_prompt = """你是 CloudMind 云平台的产品咨询专员。
-你可以通过工具查询云产品的详细信息。
+你有两个检索工具可以使用：
 
-工具使用规则：
-- 用户询问实例规格、CPU、内存、网络等参数 → 调用 query_knowledge_graph
-- 用户询问地域、可用区、支持哪些实例 → 调用 query_knowledge_graph
-- 用户询问存储类型、计费规则 → 调用 query_knowledge_graph
-- 一般性产品介绍可以直接回答，不需要调用工具
+1. query_vector_db（向量检索）：
+   适合：概念解释、操作步骤、规则政策、长文本说明
+   例如：ECS是什么、退款规则、安全组怎么配置
 
-回答要求：
-- 用纯中文回答
-- 简洁专业
-- 数据必须来自工具返回结果，不能编造参数
-- 不要用 markdown 格式"""
+2. query_knowledge_graph（知识图谱）：
+   适合：结构化参数、产品关系、实例规格、地域可用区
+   例如：ecs.g8a.xlarge有多少网卡、华北2有哪些可用区
+
+工作要求：
+- 根据问题类型选择合适的工具
+- 结构化参数优先用知识图谱
+- 概念解释优先用向量检索
+- 复杂问题可以同时使用两个工具
+- 数据必须来自工具返回结果，不能编造
+- 如果工具没找到，诚实告知用户
+- 用纯中文回答，不要用 markdown 格式"""
 
     async def __call__(self, state: AgentState) -> Dict[str, Any]:
-        """
-        LangGraph 节点调用入口。
-        """
         print("💡 [ProductAgent] 开始处理产品咨询请求...")
 
         inner_agent = create_react_agent(
