@@ -76,7 +76,7 @@ class BillingAgentNode:
 工具使用规则：
 - 用户询问订单、账单 → 必须调用 query_user_orders 工具
 - 用户询问实例、服务器 → 必须调用 query_user_instances 工具
-- 调用工具时 user_id 参数传 "user_1001"
+- 调用工具时 user_id 参数传 "auto"
 
 数据来源规则：
 - 只能使用工具返回的真实数据回答
@@ -91,10 +91,9 @@ class BillingAgentNode:
         self.finops_system_prompt = """你是 CloudMind 云平台的账单查询专员。
 你的任务是查询用户当前所有实例信息，为后续成本优化分析做准备。
 
-请调用 query_user_instances 工具查询用户实例列表。
-调用工具时 user_id 传 "user_1001"。
-把查到的实例信息完整返回，包括实例ID、规格、状态。
-不要做任何分析，只负责查询和返回数据。"""
+你必须立即调用 query_user_instances 工具，不要说"我将查询"或"请稍等"。
+直接调用工具，把结果完整返回。
+调用工具时 user_id 参数传 "auto"。"""
 
     async def __call__(self, state: AgentState) -> Dict[str, Any]:
         metadata = state.get("metadata", {})

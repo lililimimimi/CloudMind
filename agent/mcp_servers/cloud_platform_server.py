@@ -260,6 +260,7 @@ def analyze_instance_usage(instance_id: str, user_id: str = "") -> str:
 # -------------------------------------------------------
 @mcp.tool()
 def search_product_catalog(keyword: str) -> str:
+    print(f"[search_product_catalog] keyword={keyword}", file=sys.stderr)
     """
     根据关键词搜索云产品目录，，模糊搜索并返回符合条件的产品信息及【产品ID】
 
@@ -270,14 +271,27 @@ def search_product_catalog(keyword: str) -> str:
     kw_lower = keyword.lower()
 
     for pid, pinfo in PRODUCT_CATALOG.items():
-        if kw_lower in pinfo["name"].lower() or \
-           any(kw_lower in k for k in pinfo["keywords"]):
+        name_lower = pinfo["name"].lower()
+        keywords = pinfo["keywords"]
+        
+        # 双向匹配：关键词包含产品名 或 产品名包含关键词
+        # 或者关键词包含任意一个 keyword 标签
+        matched = (
+            kw_lower in name_lower or
+            name_lower in kw_lower or
+            any(k in kw_lower for k in keywords) or  # 改成反向：keyword 在搜索词里
+            any(kw_lower in k for k in keywords)
+        )
+        
+        if matched:
             results.append({
                 "product_id": pid,
                 "product_name": pinfo["name"],
                 "price": pinfo["price"]
             })
 
+
+    print(f"[search_product_catalog] results={results}", file=sys.stderr)
     if not results:
         return json.dumps({
             "status": "not_found",
@@ -383,10 +397,10 @@ def generate_ai_poster(prompt: str) -> str:
     }
 
     # 构建海报 prompt
-    enhanced_prompt = f"云计算平台推广海报，{prompt}，蓝色科技风格，专业简洁，高清"
+    enhanced_prompt = f"云计算平台推广海报，{prompt}，无任何文字，纯视觉背景，4k高清，蓝色科技风，突出云服务器和GPU算力的特点，适合社交媒体分享"
 
     payload = {
-        "model": "wanx2.1-t2i-turbo",  # 通义万相最新模型，速度快质量好
+        "model": "wanx2.1-t2i-plus",  # 通义万相最新模型，速度快质量好
         "input": {
             "prompt": enhanced_prompt,
             "negative_prompt": "低质量，模糊，水印，变形"

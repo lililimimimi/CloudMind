@@ -9,6 +9,82 @@ interface Props {
   loading: boolean;
 }
 
+function renderContent(content: string) {
+  const lines = content.split("\n");
+  return lines.map((line: string, idx: number) => {
+    // 检测 markdown 图片 ![alt](url)
+    const imgMatch = line.match(/!\[(.+?)\]\((.+?)\)/);
+    if (imgMatch) {
+      return (
+        <div
+          key={idx}
+          style={{
+            margin: "8px 0",
+            position: "relative",
+            display: "inline-block",
+            width: "100%",
+          }}
+        >
+          <img
+            src={imgMatch[2]}
+            alt={imgMatch[1]}
+            style={{
+              maxWidth: "100%",
+              borderRadius: "8px",
+              cursor: "pointer",
+              display: "block",
+            }}
+            onClick={() => window.open(imgMatch[2], "_blank")}
+          />
+          {/* 底部渐变遮罩 + 文字 */}
+          <div
+            style={{
+              position: "absolute",
+              bottom: 0,
+              left: 0,
+              right: 0,
+              background: "linear-gradient(transparent, rgba(0,0,0,0.75))",
+              color: "#fff",
+              padding: "24px 14px 12px",
+              borderRadius: "0 0 8px 8px",
+              fontSize: "13px",
+              fontWeight: 600,
+            }}
+          >
+            {imgMatch[1]}
+          </div>
+        </div>
+      );
+    }
+
+    // 检测 markdown 链接 [text](url)
+    const linkMatch = line.match(/\[(.+?)\]\((.+?)\)/);
+    if (linkMatch) {
+      const before = line.slice(0, line.indexOf(linkMatch[0]));
+      const after = line.slice(
+        line.indexOf(linkMatch[0]) + linkMatch[0].length,
+      );
+      return (
+        <div key={idx}>
+          <span>{before}</span>
+          <a
+            href={linkMatch[2]}
+            target="_blank"
+            rel="noreferrer"
+            style={{ color: "#4f8ef7", textDecoration: "underline" }}
+          >
+            {linkMatch[1]}
+          </a>
+          <span>{after}</span>
+        </div>
+      );
+    }
+
+    // 普通文字
+    return <div key={idx}>{line.replace(/<br>/g, "") || "\u00A0"}</div>;
+  });
+}
+
 function MessageList({ messages, loading }: Props) {
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -28,12 +104,7 @@ function MessageList({ messages, loading }: Props) {
           )}
 
           <div className={`message-bubble ${msg.role}`}>
-            <div
-              dangerouslySetInnerHTML={{
-                __html: msg.content.replace(/<br>/g, "\n"),
-              }}
-              style={{ whiteSpace: "pre-wrap" }}
-            />
+            {renderContent(msg.content)}
             {msg.role === "assistant" &&
               loading &&
               i === messages.length - 1 && (
@@ -56,7 +127,6 @@ function MessageList({ messages, loading }: Props) {
           )}
         </div>
       ))}
-
       <div ref={bottomRef} />
     </div>
   );

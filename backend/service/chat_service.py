@@ -103,8 +103,10 @@ class ChatService:
 
             # 8. 逐字流式返回给前端
             for char in answer:
-                safe_char = char.replace('\n', '<br>')
-                yield f"data: {safe_char}\n\n"
+                if char == '\n':
+                    yield f"data: <br>\n\n"
+                else:
+                    yield f"data: {char}\n\n"
 
             yield "data: [DONE]\n\n"
 

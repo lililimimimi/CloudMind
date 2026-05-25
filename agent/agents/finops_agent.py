@@ -51,65 +51,42 @@ class FinOpsAgentNode:
             self.mcp_config = json.load(f)
 
     async def __call__(self, state: AgentState) -> Dict[str, Any]:
-        """
-        LangGraph 节点调用入口。
-        读取实例数据，分析成本，给出优化建议。
-        """
-
         print("💡 [FinOpsAgent] 开始进行成本优化分析...")
 
-        # 从 metadata 取出 billing_agent 查到的实例数据
         metadata = state.get("metadata", {})
         instance_data = metadata.get("instance_data", "")
         user_id = state.get("user_id", "unknown")
+        config = {"configurable": {"user_id": user_id}}
 
         print(f"[FinOpsAgent] 实例数据：{instance_data[:80] if instance_data else '无'}...")
 
-        # 构建系统提示词
-        system_prompt = f"""你是 CloudMind 云平台的成本优化专员（FinOps）。
-你刚刚接手了 BillingAgent 传递过来的实例数据。
+        system_prompt = f"""你是一个专业的云上FinOps成本优化专家。
+    你刚刚接手了 BillingAgent 传递过来的实例数据。
 
-已获取到的实例数据：
-{instance_data if instance_data else "暂无实例数据，请先调用 query_user_instances 获取"}
+    已获取到的实例数据：
+    {instance_data if instance_data else "暂无，请先调用工具查询"}
 
-你的任务：
-1. 仔细阅读上下文中的对话历史，优先提取用户想要优化的实例ID
-2. 如果上下文中没有实例ID，先调用 query_user_instances 获取实例列表
-   优先选择 Running 状态的 ECS 实例继续分析
-   如果有多台实例，先给出清单并建议用户指定目标
-3. 调用 analyze_instance_usage 工具获取目标实例近期 CPU、内存等监控数据
-4. 根据监控数据分析该实例是否存在资源闲置（RESOURCES_IDLE）
-5. 以云架构师的口吻给用户提出降本增效建议：
-   - CPU 长期极低 → 建议降配规格
-   - 估算每月可节省的费用比例
-   - 语气专业诚恳，完全站在为用户省钱的角度
+    你的任务：
+    1. 从上面的实例数据中提取实例ID
+    2. 如果没有实例数据，先调用 query_user_instances 获取实例列表
+    3. 优先选择 Running 状态的 ECS 实例进行分析
+    4. 必须调用 analyze_instance_usage 工具查询每个实例的监控数据
+    5. 根据监控数据给出具体的降本建议
 
+    注意：
+    - 调用工具时 user_id 传 "auto"，系统会自动注入真实用户ID
+    - 严禁编造数据，必须基于工具返回结果
+    - 用纯中文回答，不要用 markdown 格式，禁止用 ** 加粗，禁止用 ### 标题
+    - 用普通文字和数字编号就好
+    """
 
-降本建议维度：
-- CPU 长期低于 10% + 内存低于 30% → 资源闲置，建议降配规格
-- 实例状态为 Stopped → 建议释放或转换计费方式
-- 按量付费长期运行 → 建议转包年包月节省费用
-- 估算每月可节省的费用比例
-
-注意事项：
-- 调用工具时 user_id 传 "auto"，系统会自动注入真实用户ID
-- 严禁编造实例ID、监控指标和费用数据，必须基于工具返回结果
-- 禁止说工具坏了或接口异常
-- 用纯中文回答，不要用 markdown 格式
-- 语气专业诚恳，完全站在为用户省钱的角度"""
-
-        # 不用 async with，直接创建 client
         client = MultiServerMCPClient(
             connections=self.mcp_config.get("mcpServers", {}),
-            tool_interceptors=[UserIdInjector()]  # 复用安全拦截器
+            tool_interceptors=[UserIdInjector()]
         )
 
         all_tools = await client.get_tools()
-
-        # FinOps 需要两个工具
-        # query_user_instances：找不到实例时先查列表
-        # analyze_instance_usage：查监控数据
-        target_tools = ["query_user_instances", "analyze_instance_usage"]
+        target_tools = {"query_user_instances", "analyze_instance_usage"}
         tools = [t for t in all_tools if t.name in target_tools]
 
         print(f"[FinOpsAgent] 可用工具：{[t.name for t in tools]}")
@@ -120,9 +97,6 @@ class FinOpsAgentNode:
             prompt=system_prompt,
         )
 
-        # 注入 user_id
-        config = {"configurable": {"user_id": user_id}}
-
         result = await inner_agent.ainvoke(
             {"messages": state["messages"]},
             config=config
@@ -131,7 +105,6 @@ class FinOpsAgentNode:
         final_message = result["messages"][-1]
         print(f"[FinOpsAgent] 回复：{final_message.content[:50]}...")
 
-        # 流程结束，清空 next_agent
         return {
             "messages": [final_message],
             "next_agent": ""
