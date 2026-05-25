@@ -1,32 +1,48 @@
-# backend/service/chat_service.py
+
 # 作用：接收前端请求，调用 Agent 图，流式返回结果
-# 封装成 class，统一管理 Agent 图的初始化和调用
+# 加入短期记忆：每次请求前读取历史，请求后保存历史
 
 import os
 import sys
 from typing import AsyncGenerator
 
-# 把 agent 目录加入 Python 路径
-# 这样才能 import agent 层的模块
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../../agent'))
 
-from langchain_core.messages import HumanMessage
+from langchain_core.messages import HumanMessage, AIMessage
 
 
 class ChatService:
     """
     聊天服务类。
-    负责接收前端请求，调用 Agent 图，流式返回结果。
-    封装成 class 的好处：Agent 图只初始化一次，节省资源。
+    负责：
+    1. 读取 Redis 历史记录
+    2. 调用 Agent 图处理问题
+    3. 保存本轮对话到 Redis
+    4. 流式返回结果给前端
     """
 
     def __init__(self):
-        # 延迟导入，确保 sys.path 已经设置好
-        # Agent 图只初始化一次，后续所有请求复用
+        # 初始化 Agent 图
         from core.workflow.graph_manager import AgentGraphManager
         manager = AgentGraphManager()
         self.agent_graph = manager.build_graph()
-        print("[ChatService] Agent 图初始化完成")
+
+        # 初始化短期记忆
+        from core.memory.short_term import ShortTermMemory
+        self.memory = ShortTermMemory(
+            redis_url=os.getenv("REDIS_URL", "redis://localhost:6379"),
+            ttl=int(os.getenv("REDIS_TTL", 1800)),
+        )
+
+        print("[ChatService] 初始化完成")
+
+    async def initialize(self):
+        """
+        异步初始化，连接 Redis。
+        在 FastAPI startup 事件里调用。
+        """
+        await self.memory.initialize()
 
     async def stream_chat(
         self,
@@ -38,37 +54,58 @@ class ChatService:
         调用 Agent 图处理用户问题，流式返回结果。
 
         流程：
-        1. 把用户问题封装成 AgentState
-        2. 调用 agent_graph.ainvoke() 执行整个 Agent 流程
-        3. 取出最终回复，逐字流式返回给前端
+        1. 从 Redis 读取历史对话
+        2. 把历史 + 新问题一起传给 Agent 图
+        3. 取出最终回复，逐字流式返回
+        4. 把本轮对话保存到 Redis
         """
 
-        # 封装成 AgentState，传给 Agent 图
-        state = {
-            "messages": [HumanMessage(content=query)],
-            "user_id": user_id,
-            "session_id": session_id,
-            "next_agent": "",
-            "response": "",
-            "metadata": {},
-        }
-
         try:
-            # 调用 Agent 图，等待整个流程执行完毕
+            # 1. 从 Redis 读取历史对话
+            history = await self.memory.get_messages(user_id, session_id)
+
+            # 2. 把历史消息转成 LangChain 格式
+            history_messages = []
+            for msg in history:
+                if msg["role"] == "human":
+                    history_messages.append(HumanMessage(content=msg["content"]))
+                elif msg["role"] == "ai":
+                    history_messages.append(AIMessage(content=msg["content"]))
+
+            # 3. 加入本次用户问题
+            current_message = HumanMessage(content=query)
+            all_messages = history_messages + [current_message]
+
+            print(f"[ChatService] 历史消息数：{len(history_messages)}，当前问题：{query}")
+
+            # 4. 封装成 AgentState
+            state = {
+                "messages": all_messages,
+                "user_id": user_id,
+                "session_id": session_id,
+                "next_agent": "",
+                "response": "",
+                "metadata": {},
+            }
+
+            # 5. 调用 Agent 图
             result = await self.agent_graph.ainvoke(state)
 
-            # 取出最后一条 AI 回复
+            # 6. 取出最终回复
             final_message = result["messages"][-1]
             answer = final_message.content
 
             print(f"[ChatService] 最终回复：{answer[:50]}...")
 
-            # 逐字流式返回给前端
+            # 7. 保存本轮对话到 Redis
+            await self.memory.append_message(user_id, session_id, "human", query)
+            await self.memory.append_message(user_id, session_id, "ai", answer)
+
+            # 8. 逐字流式返回给前端
             for char in answer:
                 safe_char = char.replace('\n', '<br>')
                 yield f"data: {safe_char}\n\n"
 
-            # 发送结束信号
             yield "data: [DONE]\n\n"
 
         except Exception as e:

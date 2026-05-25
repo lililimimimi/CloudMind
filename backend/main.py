@@ -2,19 +2,25 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from router.chat_router import router
+from service.chat_service import chat_service
 
 app = FastAPI(title="CloudMind API")
 
-# CORS 配置，允许前端跨域访问
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],        # 开发阶段先放开所有来源
+    allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["*"],        # 允许所有方法包括 OPTIONS
-    allow_headers=["*"],        # 允许所有请求头
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 app.include_router(router, prefix="/api")
+
+# FastAPI 启动时初始化 Redis 连接
+@app.on_event("startup")
+async def startup():
+    await chat_service.initialize()
+    print("[Main] 服务启动完成")
 
 if __name__ == "__main__":
     import uvicorn
