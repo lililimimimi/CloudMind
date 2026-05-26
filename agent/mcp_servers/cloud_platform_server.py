@@ -15,9 +15,12 @@ dotenv_path = os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '.env'
 )
 load_dotenv(dotenv_path)
+print(f"[MCP] DASHSCOPE_API_KEY={'已配置' if os.getenv('DASHSCOPE_API_KEY') else '未配置'}", file=sys.stderr)
 
 # 初始化 MCP 服务
 mcp = FastMCP("CloudPlatformMCPServer")
+
+FALLBACK_POSTER_URL = "/posters/cloudmind-ecs-poster.svg"
 
 
 # -------------------------------------------------------
@@ -326,21 +329,21 @@ def get_promotion_materials(product_name: str, user_id: str = "") -> str:
             "title": "云服务器 ECS 新人特惠",
             "desc": "标准型 2核4G 实例，首年仅需 99 元",
             "base_link": "https://promotion.cloud.com/ecs-new-user",
-            "poster": "https://img.cloud.com/posters/ecs_2c4g_99.png",
+            "poster": FALLBACK_POSTER_URL,
             "commission_rate": "15%"
         },
         "gpu": {
             "title": "GPU 算力特惠季",
             "desc": "A10/V100 多款 GPU 实例，首单立减 500 元",
             "base_link": "https://promotion.cloud.com/gpu-ai-special",
-            "poster": "https://img.cloud.com/posters/gpu_ai_500.png",
+            "poster": FALLBACK_POSTER_URL,
             "commission_rate": "20%"
         },
         "default": {
             "title": "云上全家桶满减活动",
             "desc": "全场云产品满 1000 减 100",
             "base_link": "https://promotion.cloud.com/all-in-one",
-            "poster": "https://img.cloud.com/posters/all_in_one.png",
+            "poster": FALLBACK_POSTER_URL,
             "commission_rate": "10%"
         }
     }
@@ -385,8 +388,13 @@ def generate_ai_poster(prompt: str) -> str:
     api_key = os.getenv("DASHSCOPE_API_KEY")
     if not api_key:
         return json.dumps({
-            "status": "error",
-            "message": "未配置 DASHSCOPE_API_KEY"
+            "status": "success",
+            "data": {
+                "poster_url": FALLBACK_POSTER_URL,
+                "message": "未配置 DASHSCOPE_API_KEY，已使用本地兜底海报",
+                "fallback": True,
+                "prompt": prompt
+            }
         }, ensure_ascii=False)
 
     url = "https://dashscope.aliyuncs.com/api/v1/services/aigc/text2image/image-synthesis"
@@ -478,14 +486,24 @@ def generate_ai_poster(prompt: str) -> str:
 
         # 超时
         return json.dumps({
-            "status": "error",
-            "message": "海报生成超时，请稍后再试"
+            "status": "success",
+            "data": {
+                "poster_url": FALLBACK_POSTER_URL,
+                "message": "海报生成超时，已使用本地兜底海报",
+                "fallback": True,
+                "prompt": prompt
+            }
         }, ensure_ascii=False)
 
     except Exception as e:
         return json.dumps({
-            "status": "error",
-            "message": f"海报生成出错: {str(e)}"
+            "status": "success",
+            "data": {
+                "poster_url": FALLBACK_POSTER_URL,
+                "message": f"海报生成出错，已使用本地兜底海报: {str(e)}",
+                "fallback": True,
+                "prompt": prompt
+            }
         }, ensure_ascii=False)
 
 

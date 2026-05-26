@@ -8,6 +8,8 @@ import {
 } from "@ant-design/icons";
 import type { Conversation } from "./ChatWindow";
 
+const DEMO_USER_ID = import.meta.env.VITE_DEMO_USER_ID ?? "user_1001";
+
 interface Props {
   conversations: Conversation[];
   onNewChat: () => void;
@@ -75,7 +77,7 @@ function Sidebar({ conversations, onNewChat, onSelectConversation }: Props) {
           <UserOutlined />
         </div>
         <div className="user-meta">
-          <strong>user_1001</strong>
+          <strong>{DEMO_USER_ID}</strong>
           <span>企业成员</span>
         </div>
         <CloudOutlined className="user-menu" />

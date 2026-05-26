@@ -1,89 +1,210 @@
-
-# 作用：把 mock_data/ecs_product_info.json 导入 Neo4j 知识图谱
-# 运行一次即可，数据会持久化在 Neo4j 里
+# agent/tools/build_kg.py
+# 作用：用 AI 自动从 Markdown 文档提取知识图谱，导入 Neo4j
+# 支持任意 .md 文档，不需要手工整理 JSON
+# 用法：python tools/build_kg.py mock_data/billing_and_refund_policy.md
 
 import os
 import json
-from dotenv import load_dotenv
+from typing import List
+from pydantic import BaseModel, Field
+from langchain_openai import ChatOpenAI
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 from neo4j import GraphDatabase
+from dotenv import load_dotenv
 
-# 加载环境变量
 dotenv_path = os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '.env'
 )
 load_dotenv(dotenv_path)
 
 
-def build_knowledge_graph():
-    """
-    把 ecs_product_info.json 里的节点和关系导入 Neo4j。
-    节点：Region、Zone、InstanceType、Storage 等
-    关系：CONTAINS、HAS_SPEC、HAS_NETWORK 等
-    """
+# ==========================================
+# 1. Pydantic 数据模型
+# ==========================================
 
-    # 读取数据文件
-    data_path = os.path.join(
-        os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
-        'mock_data', 'ecs_product_info.json'
+class Property(BaseModel):
+    key: str = Field(description="属性的键名，例如 vCPU, memory, storage_type, bandwidth_limit, error_code 等")
+    value: str = Field(description="属性的值，例如 4, 16GiB, ESSD, 10Gbps, 404 等")
+
+
+class Node(BaseModel):
+    id: str = Field(description="节点的唯一标识符，应尽量简短明确。如 ecs.g8a.xlarge, 华北2（北京）, 包年包月")
+    label: str = Field(description="节点类型标签。如 Product, Region, InstanceType, Storage, Image, BillingRule, ErrorCode, Feature 等")
+    properties: List[Property] = Field(description="节点的属性列表", default_factory=list)
+
+
+class Edge(BaseModel):
+    source: str = Field(description="源节点 ID")
+    target: str = Field(description="目标节点 ID")
+    type: str = Field(description="关系类型，使用大写下划线格式，如 CONTAINS, SUPPORTS, HAS_LIMIT, REQUIRES, RESOLVED_BY, BELONGS_TO 等")
+
+
+class KnowledgeGraph(BaseModel):
+    nodes: List[Node] = Field(description="从文档中提取的所有核心实体节点列表")
+    edges: List[Edge] = Field(description="从文档中提取的实体之间的关系映射列表")
+
+
+# ==========================================
+# 2. LLM 抽取逻辑
+# ==========================================
+
+def extract_knowledge_graph(file_path: str) -> dict:
+    print(f"📄 正在读取文档: {file_path}")
+    with open(file_path, 'r', encoding='utf-8') as f:
+        content = f.read()
+
+    # 从环境变量读取配置，使用硅基流动
+    api_key = os.getenv("SILICONFLOW_API_KEY")
+    model_name = os.getenv("MODEL", "deepseek-ai/DeepSeek-V3")
+    base_url = os.getenv("SILICONFLOW_BASE_URL", "https://api.siliconflow.cn/v1")
+
+    if not api_key:
+        raise ValueError("❌ 环境变量中未找到 SILICONFLOW_API_KEY")
+
+    llm = ChatOpenAI(
+        api_key=api_key,
+        model=model_name,
+        base_url=base_url,
+        temperature=0,
     )
 
-    with open(data_path, 'r', encoding='utf-8') as f:
-        data = json.load(f)
+    structured_llm = llm.with_structured_output(KnowledgeGraph)
 
-    nodes = data.get('nodes', [])
-    edges = data.get('edges', [])
+    prompt = ChatPromptTemplate.from_messages([
+        ("system", """你是一个资深的云服务知识图谱架构师。你的任务是阅读云平台的产品文档片段，并从中提取核心知识图谱。
 
-    print(f"📊 节点数量：{len(nodes)}")
-    print(f"🔗 关系数量：{len(edges)}")
+提取原则：
+1. **节点(Nodes)**：识别文档中的核心实体。
+   - 实体可以是产品(Product)、地域(Region)、实例规格(InstanceType)、存储类型(Storage)、计费模式(BillingRule)、功能特性(Feature)、报错码(ErrorCode)等。
+   - 节点ID必须唯一，尽量使用标准的、全称的名称（如 "华北2（北京）" 而不是 "北京"）。
+   - 将实体的关键数值或描述作为属性(Properties)提取。
+2. **关系(Edges)**：识别实体间的约束和关联。
+   - 关系类型应简洁且为大写(如 SUPPORTS, CONTAINS, RESTRICTS, REQUIRES, HAS_FEATURE)。
+3. **泛化性**：根据上下文灵活定义合理的节点标签和关系类型。
 
-    # 连接 Neo4j
-    driver = GraphDatabase.driver(
-        os.getenv("NEO4J_URI", "bolt://localhost:7687"),
-        auth=(
-            os.getenv("NEO4J_USER", "neo4j"),
-            os.getenv("NEO4J_PASSWORD", "cloudmind123")
-        )
+注意：你当前阅读的可能是长文档的一个片段（Chunk）。请尽可能提取出完整的、孤立的实体和关系。
+确保输出严格符合 JSON Schema。所有源(source)和目标(target)必须在提取的节点ID中存在。"""),
+        ("human", "文档片段内容如下，请提取知识图谱：\n{text}")
+    ])
+
+    chain = prompt | structured_llm
+
+    # 长文档分块
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=2000,
+        chunk_overlap=200,
+        separators=["\n## ", "\n### ", "\n\n", "\n", " ", ""]
     )
+
+    chunks = text_splitter.split_text(content)
+    print(f"🔪 文档已切分为 {len(chunks)} 个片段，开始逐块提取...")
+
+    all_nodes = {}
+    all_edges = set()
+
+    for i, chunk in enumerate(chunks):
+        print(f"⏳ 正在处理第 {i+1}/{len(chunks)} 个片段...")
+        try:
+            kg_result = chain.invoke({"text": chunk})
+
+            # 合并节点（去重并合并属性）
+            for node in kg_result.nodes:
+                node_id = node.id
+                if node_id not in all_nodes:
+                    all_nodes[node_id] = node
+                else:
+                    existing_props = {p.key: p.value for p in all_nodes[node_id].properties}
+                    for new_prop in node.properties:
+                        if new_prop.key not in existing_props:
+                            all_nodes[node_id].properties.append(new_prop)
+
+            # 合并边（去重）
+            for edge in kg_result.edges:
+                edge_tuple = (edge.source, edge.type, edge.target)
+                all_edges.add(edge_tuple)
+
+        except Exception as e:
+            print(f"⚠️ 第 {i+1} 个片段提取失败，跳过: {e}")
+            continue
+
+    final_kg = {
+        "nodes": [node.dict() for node in all_nodes.values()],
+        "edges": [{"source": e[0], "type": e[1], "target": e[2]} for e in all_edges]
+    }
+
+    # 保存 JSON
+    output_json = file_path.replace('.md', '_kg.json')
+    with open(output_json, 'w', encoding='utf-8') as f:
+        json.dump(final_kg, f, ensure_ascii=False, indent=2)
+
+    print(f"✅ 提取完成！共 {len(final_kg['nodes'])} 个节点，{len(final_kg['edges'])} 条关系。已保存至: {output_json}")
+    return final_kg
+
+
+# ==========================================
+# 3. Neo4j 导入逻辑（增量导入，不清空）
+# ==========================================
+
+def import_to_neo4j(kg_data: dict):
+    uri = os.getenv("NEO4J_URI", "bolt://localhost:7687")
+    user = os.getenv("NEO4J_USER", "neo4j")
+    password = os.getenv("NEO4J_PASSWORD", "cloudmind123")
+
+    print(f"🔌 正在连接 Neo4j ({uri})...")
+    driver = GraphDatabase.driver(uri, auth=(user, password))
 
     with driver.session() as session:
-
-        # 清空旧数据
-        print("🗑️  清空旧数据...")
-        session.run("MATCH (n) DETACH DELETE n")
-
-        # 导入节点
-        print("📥 导入节点...")
-        for node in nodes:
+        print("🛠️ 正在导入节点...")
+        for node in kg_data['nodes']:
+            import re
+            label = re.sub(r'[^a-zA-Z0-9\u4e00-\u9fff_]', '_', node['label'])
+            
+            if label[0].isdigit():
+                label = 'L_' + label
             node_id = node['id']
-            label = node['label']
-            properties = {p['key']: p['value'] for p in node.get('properties', [])}
-            properties['id'] = node_id
+            props_dict = {p['key']: p['value'] for p in node['properties']}
+            props_dict['id'] = node_id
 
-            # 动态创建不同 label 的节点
-            cypher = f"MERGE (n:{label} {{id: $id}}) SET n += $props"
-            session.run(cypher, id=node_id, props=properties)
+            query = f"MERGE (n:{label} {{id: $id}}) SET n += $props"
+            session.run(query, id=node_id, props=props_dict)
 
-        print(f"✅ 导入了 {len(nodes)} 个节点")
+        print("🔗 正在导入关系...")
+        for edge in kg_data['edges']:
+            rel_type = edge['type'].replace(' ', '_').replace('-', '_').upper()
+            source_id = edge['source']
+            target_id = edge['target']
 
-        # 导入关系
-        print("📥 导入关系...")
-        for edge in edges:
-            source = edge['source']
-            target = edge['target']
-            rel_type = edge['type']
-
-            cypher = f"""
-            MATCH (a {{id: $source}})
-            MATCH (b {{id: $target}})
-            MERGE (a)-[:{rel_type}]->(b)
+            query = f"""
+            MATCH (source {{id: $source_id}})
+            MATCH (target {{id: $target_id}})
+            MERGE (source)-[r:{rel_type}]->(target)
             """
-            session.run(cypher, source=source, target=target)
-
-        print(f"✅ 导入了 {len(edges)} 条关系")
+            session.run(query, source_id=source_id, target_id=target_id)
 
     driver.close()
-    print("🎉 知识图谱构建完成！")
+    print("🎉 Neo4j 导入成功！")
 
+
+# ==========================================
+# 4. 主函数入口
+# ==========================================
 
 if __name__ == "__main__":
-    build_knowledge_graph()
+    import sys
+
+    if len(sys.argv) > 1:
+        md_file_path = sys.argv[1]
+    else:
+        BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        md_file_path = os.path.join(BASE_DIR, "mock_data", "billing_and_refund_policy.md")
+
+    if not os.path.exists(md_file_path):
+        print(f"❌ 找不到文件: {md_file_path}")
+        sys.exit(1)
+
+    try:
+        kg_data = extract_knowledge_graph(md_file_path)
+        import_to_neo4j(kg_data)
+    except Exception as e:
+        print(f"❌ 执行失败: {e}")

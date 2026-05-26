@@ -1,0 +1,285 @@
+{
+  "nodes": [
+    {
+      "id": "vpc-prod-beijing",
+      "label": "VPC 实例",
+      "properties": [
+        {
+          "key": "网段",
+          "value": "10.0.0.0/8"
+        },
+        {
+          "key": "地域",
+          "value": "华北2（北京）"
+        }
+      ]
+    },
+    {
+      "id": "vsw-beijing-k",
+      "label": "交换机",
+      "properties": [
+        {
+          "key": "所属 VPC",
+          "value": "vpc-prod-beijing"
+        },
+        {
+          "key": "可用区",
+          "value": "cn-beijing-k"
+        }
+      ]
+    },
+    {
+      "id": "vsw-beijing-g",
+      "label": "交换机",
+      "properties": [
+        {
+          "key": "所属 VPC",
+          "value": "vpc-prod-beijing"
+        },
+        {
+          "key": "可用区",
+          "value": "cn-beijing-g"
+        }
+      ]
+    },
+    {
+      "id": "ecs.g8a.4xlarge",
+      "label": "实例规格",
+      "properties": [
+        {
+          "key": "建议部署",
+          "value": "核心数据库、企业级实例"
+        }
+      ]
+    },
+    {
+      "id": "ecs.c7.large",
+      "label": "实例规格",
+      "properties": [
+        {
+          "key": "建议绑定",
+          "value": "EIP"
+        }
+      ]
+    },
+    {
+      "id": "ecs.g8a.xlarge",
+      "label": "实例规格",
+      "properties": [
+        {
+          "key": "建议绑定",
+          "value": "EIP"
+        }
+      ]
+    },
+    {
+      "id": "gn7i",
+      "label": "实例规格",
+      "properties": [
+        {
+          "key": "限制",
+          "value": "无法部署在 vsw-beijing-g"
+        }
+      ]
+    },
+    {
+      "id": "vpc-dev-beijing",
+      "label": "VPC 实例",
+      "properties": [
+        {
+          "key": "地域",
+          "value": "华北2（北京）"
+        }
+      ]
+    },
+    {
+      "id": "EIP",
+      "label": "弹性公网 IP",
+      "properties": [
+        {
+          "key": "绑定目标",
+          "value": "专有网络类型资源"
+        },
+        {
+          "key": "区域约束",
+          "value": "地域级资源"
+        }
+      ]
+    },
+    {
+      "id": "Shared Bandwidth",
+      "label": "共享带宽",
+      "properties": [
+        {
+          "key": "优势",
+          "value": "应对突发流量峰值，降低公网带宽成本 30% - 40%"
+        },
+        {
+          "key": "限制",
+          "value": "包年包月 ECS 实例使用固定带宽计费无法加入"
+        }
+      ]
+    },
+    {
+      "id": "RDS",
+      "label": "核心数据库",
+      "properties": [
+        {
+          "key": "建议部署",
+          "value": "vsw-beijing-k"
+        }
+      ]
+    },
+    {
+      "id": "ecs.c7.8xlarge",
+      "label": "实例规格",
+      "properties": [
+        {
+          "key": "建议绑定",
+          "value": "2 块网卡"
+        }
+      ]
+    },
+    {
+      "id": "sg-web-prod",
+      "label": "安全组",
+      "properties": [
+        {
+          "key": "入方向",
+          "value": "允许 0.0.0.0/0 访问 TCP 80, 443；允许 203.0.113.1/32 访问 TCP 22；拒绝其他所有入站流量"
+        },
+        {
+          "key": "出方向",
+          "value": "允许所有出站流量"
+        }
+      ]
+    },
+    {
+      "id": "sg-rds-internal",
+      "label": "安全组",
+      "properties": [
+        {
+          "key": "入方向",
+          "value": "拒绝所有公网访问；仅允许源安全组为 sg-web-prod 的实例通过内网访问 TCP 3306 端口"
+        }
+      ]
+    },
+    {
+      "id": "sg-web",
+      "label": "安全组",
+      "properties": [
+        {
+          "key": "入方向",
+          "value": "开放 80/443"
+        }
+      ]
+    },
+    {
+      "id": "sg-db",
+      "label": "安全组",
+      "properties": [
+        {
+          "key": "入方向",
+          "value": "仅内网互通，禁止公网"
+        }
+      ]
+    },
+    {
+      "id": "203.0.113.1/32",
+      "label": "堡垒机 IP",
+      "properties": [
+        {
+          "key": "访问端口",
+          "value": "TCP 22"
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "source": "ecs.g8a.4xlarge",
+      "type": "HAS_FEATURE",
+      "target": "sg-rds-internal"
+    },
+    {
+      "source": "vsw-beijing-k",
+      "type": "SUPPORTS",
+      "target": "ecs.g8a.4xlarge"
+    },
+    {
+      "source": "sg-rds-internal",
+      "type": "ALLOWS",
+      "target": "sg-web-prod"
+    },
+    {
+      "source": "EIP",
+      "type": "JOINS",
+      "target": "Shared Bandwidth"
+    },
+    {
+      "source": "vpc-prod-beijing",
+      "type": "CONTAINS",
+      "target": "vsw-beijing-k"
+    },
+    {
+      "source": "vsw-beijing-g",
+      "type": "SUPPORTS",
+      "target": "ecs.g8a.4xlarge"
+    },
+    {
+      "source": "ecs.c7.8xlarge",
+      "type": "HAS_FEATURE",
+      "target": "sg-web"
+    },
+    {
+      "source": "vpc-prod-beijing",
+      "type": "CONTAINS",
+      "target": "vsw-beijing-g"
+    },
+    {
+      "source": "sg-web-prod",
+      "type": "ALLOWS",
+      "target": "0.0.0.0/0"
+    },
+    {
+      "source": "vpc-prod-beijing",
+      "type": "ISOLATES",
+      "target": "vpc-dev-beijing"
+    },
+    {
+      "source": "EIP",
+      "type": "BINDS_TO",
+      "target": "ecs.g8a.xlarge"
+    },
+    {
+      "source": "vsw-beijing-k",
+      "type": "SUPPORTS",
+      "target": "RDS"
+    },
+    {
+      "source": "ecs.g8a.4xlarge",
+      "type": "HAS_FEATURE",
+      "target": "sg-web-prod"
+    },
+    {
+      "source": "EIP",
+      "type": "BINDS_TO",
+      "target": "ecs.c7.large"
+    },
+    {
+      "source": "ecs.c7.8xlarge",
+      "type": "HAS_FEATURE",
+      "target": "sg-db"
+    },
+    {
+      "source": "vsw-beijing-g",
+      "type": "RESTRICTS",
+      "target": "gn7i"
+    },
+    {
+      "source": "sg-web-prod",
+      "type": "ALLOWS",
+      "target": "203.0.113.1/32"
+    }
+  ]
+}

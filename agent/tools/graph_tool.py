@@ -59,11 +59,16 @@ Important Rules:
 1. 节点标签: Region, Zone, InstanceTypeFamily, InstanceType, Storage, BillingRule 等
 2. 注意属性访问: 必须给节点赋予变量名才能访问属性
    错误: MATCH (:InstanceType {{id: "g8a"}}) RETURN vcpu
-   正确: MATCH (i:InstanceType {{id: "ecs.g8a.4xlarge"}}) RETURN i.vcpu
+   正确: MATCH (n {{id: "ecs.g8a.xlarge"}}) RETURN n.`Max ENI Quantity`
 3. 注意实体层级:
    g8a, c7 这种属于 InstanceTypeFamily（规格族）
    ecs.g8a.xlarge 这种具体型号才属于 InstanceType（实例规格）
-4. 返回格式: 尽可能详细，返回节点时用 RETURN node 而不是只返回 ID
+4. 属性名可能包含空格，必须用反引号包裹，例如：
+   n.`Max ENI Quantity`  （弹性网卡数量）
+   n.`Memory`           （内存）
+   n.`CPU`              （CPU数量）
+5. 查询实例属性时，直接 MATCH (n {{id: "实例ID"}}) RETURN properties(n) 获取所有属性
+6. 返回格式: 尽可能详细，返回节点时用 RETURN node 而不是只返回 ID
 
 The question is:
 {question}"""
@@ -116,43 +121,33 @@ def _fallback_graph_keyword_search(query: str) -> str:
 
     keywords = _extract_keywords(query)
 
-    where_clauses = []
-    for k in keywords:
-        where_clauses.append(
-            f"toLower(coalesce(n.id, '')) CONTAINS '{k}' OR "
-            f"toLower(coalesce(n.name, '')) CONTAINS '{k}' OR "
-            f"toLower(coalesce(n.description, '')) CONTAINS '{k}'"
-        )
-    node_where = " OR ".join(where_clauses)
-
-    node_cypher = f"""
+    node_cypher = """
     MATCH (n)
-    WHERE {node_where}
+    WHERE any(k IN $keywords WHERE
+        toLower(coalesce(n.id, '')) CONTAINS k OR
+        toLower(coalesce(n.name, '')) CONTAINS k OR
+        toLower(coalesce(n.description, '')) CONTAINS k
+    )
     RETURN labels(n) AS labels, coalesce(n.id, n.name, '') AS node_key, properties(n) AS props
     LIMIT 8
     """
 
-    rel_where_clauses = []
-    for k in keywords:
-        rel_where_clauses.append(
-            f"toLower(coalesce(a.id, '')) CONTAINS '{k}' OR "
-            f"toLower(coalesce(a.name, '')) CONTAINS '{k}' OR "
-            f"toLower(coalesce(b.id, '')) CONTAINS '{k}' OR "
-            f"toLower(coalesce(b.name, '')) CONTAINS '{k}'"
-        )
-    rel_where = " OR ".join(rel_where_clauses)
-
-    rel_cypher = f"""
+    rel_cypher = """
     MATCH (a)-[r]->(b)
-    WHERE {rel_where}
+    WHERE any(k IN $keywords WHERE
+        toLower(coalesce(a.id, '')) CONTAINS k OR
+        toLower(coalesce(a.name, '')) CONTAINS k OR
+        toLower(coalesce(b.id, '')) CONTAINS k OR
+        toLower(coalesce(b.name, '')) CONTAINS k
+    )
     RETURN labels(a) AS from_labels, coalesce(a.id, a.name, '') AS from_node,
            type(r) AS rel, labels(b) AS to_labels, coalesce(b.id, b.name, '') AS to_node
     LIMIT 8
     """
 
     try:
-        nodes = graph.query(node_cypher)
-        relations = graph.query(rel_cypher)
+        nodes = graph.query(node_cypher, params={"keywords": keywords})
+        relations = graph.query(rel_cypher, params={"keywords": keywords})
     except Exception as exc:
         return f"图谱关键词检索失败: {str(exc)}"
 
@@ -197,9 +192,18 @@ def query_knowledge_graph(query: str) -> str:
     try:
         chain = _get_graph_chain()
         result = chain.invoke({"query": query})
-        return result.get('result', "未找到相关图谱信息。")
+        answer = result.get('result', "")
+        
+        # 如果主链没找到或返回不确定的答案，用 fallback 补充
+        uncertain_phrases = ["没有找到", "无法", "不确定", "建议您查阅", "暂时没有", "没有具体"]
+        if not answer or any(p in answer for p in uncertain_phrases):
+            fallback = _fallback_graph_keyword_search(query)
+            if fallback and "失败" not in fallback:
+                return fallback
+        
+        return answer if answer else "未找到相关图谱信息。"
+
     except Exception as e:
-        # 主链失败，用关键词兜底
         fallback_result = _fallback_graph_keyword_search(query)
         if fallback_result and "失败" not in fallback_result:
             return fallback_result

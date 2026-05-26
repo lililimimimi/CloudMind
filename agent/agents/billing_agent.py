@@ -3,15 +3,14 @@
 # 通过 MCP 工具查询用户真实的订单、实例数据
 
 import os
-import json
-from typing import Dict, Any, Callable, Awaitable
+from typing import Dict, Any
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
-from langchain_core.messages import SystemMessage
 from langchain_mcp_adapters.client import MultiServerMCPClient
 from langgraph.prebuilt import create_react_agent
 
 from core.workflow.state import AgentState
+from config.mcp_runtime import get_cloud_platform_mcp_connections
 
 load_dotenv()
 
@@ -58,13 +57,7 @@ class BillingAgentNode:
             temperature=0,
         )
 
-        # 读取 MCP 服务配置
-        config_path = os.path.join(
-            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-            'config', 'mcp_servers.json'
-        )
-        with open(config_path, 'r', encoding='utf-8') as f:
-            self.mcp_config = json.load(f)
+        self.mcp_connections = get_cloud_platform_mcp_connections()
 
         # 普通账单查询提示词
         self.system_prompt = """你是 CloudMind 云平台的账单查询专员。
@@ -113,7 +106,7 @@ class BillingAgentNode:
 
         # 用 connections 参数，和原项目一样
         client = MultiServerMCPClient(
-            connections=self.mcp_config.get("mcpServers", {}),
+            connections=self.mcp_connections,
             tool_interceptors=[UserIdInjector()]
         )
 

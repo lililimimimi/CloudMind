@@ -38,6 +38,10 @@ class Settings(BaseSettings):
     neo4j_password: str = "cloudmind123"
     neo4j_database: str = "neo4j"
 
+    # API
+    cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
+    cors_origin_regex: str = r"http://(localhost|127\.0\.0\.1):\d+"
+
     model_config = SettingsConfigDict(
         env_file=ENV_FILE,
         extra='ignore'      # 忽略 .env 里多余的字段

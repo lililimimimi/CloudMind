@@ -70,7 +70,7 @@ def build_vector_db():
 
     # 切割文档
     splitter = RecursiveCharacterTextSplitter(
-        chunk_size=500,       # 每块500字
+        chunk_size=200,      
         chunk_overlap=50,     # 块间重叠50字，保证上下文连贯
         length_function=len,
     )

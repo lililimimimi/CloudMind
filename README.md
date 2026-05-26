@@ -93,6 +93,9 @@ MODEL=deepseek-ai/DeepSeek-V3
 REDIS_URL=redis://localhost:6379
 REDIS_TTL=1800
 
+CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
+CORS_ORIGIN_REGEX=http://(localhost|127\.0\.0\.1):\d+
+
 MILVUS_HOST=localhost
 MILVUS_PORT=19530
 MILVUS_API_KEY=
@@ -132,7 +135,7 @@ NEO4J_PASSWORD=cloudmind123
 NEO4J_DATABASE=neo4j
 ```
 
-> 注意：`agent/config/mcp_servers.json` 里当前写的是本机虚拟环境 Python 的绝对路径。如果项目目录或虚拟环境位置变化，需要把 `command` 改成你的 Python 解释器路径。
+> 注意：运行时会通过 `agent/config/mcp_runtime.py` 使用当前 Python 解释器和实际项目路径动态生成 MCP 配置，避免本机绝对路径导致换机器后无法启动。
 
 ## 快速启动
 
@@ -295,7 +298,7 @@ python core/workflow/graph_manager.py
 
 ### MCP 工具无法启动
 
-检查 `agent/config/mcp_servers.json` 中的 `command` 是否指向真实存在的 Python 解释器。当前配置绑定到了本机路径，换目录或换机器后需要更新。
+确认后端使用包含 MCP 依赖的 Python 环境启动。运行时配置由 `agent/config/mcp_runtime.py` 生成，`agent/config/mcp_servers.json` 仅作为参考配置保留。
 
 ### 产品咨询查不到文档
 

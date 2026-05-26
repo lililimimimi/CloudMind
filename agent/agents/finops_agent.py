@@ -5,20 +5,15 @@
 # 再调用 analyze_instance_usage 工具查监控数据做分析
 
 import os
-import json
-from typing import Dict, Any, Callable, Awaitable
+from typing import Dict, Any
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 from langchain_mcp_adapters.client import MultiServerMCPClient
-from langchain_mcp_adapters.interceptors import (
-    ToolCallInterceptor,
-    MCPToolCallRequest,
-    MCPToolCallResult
-)
 from langgraph.prebuilt import create_react_agent
 
 from core.workflow.state import AgentState
 from agents.billing_agent import UserIdInjector  # 复用 billing_agent 里的拦截器
+from config.mcp_runtime import get_cloud_platform_mcp_connections
 
 load_dotenv()
 
@@ -42,13 +37,7 @@ class FinOpsAgentNode:
             temperature=0.1,
         )
 
-        # 读取 MCP 服务配置
-        config_path = os.path.join(
-            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-            'config', 'mcp_servers.json'
-        )
-        with open(config_path, 'r', encoding='utf-8') as f:
-            self.mcp_config = json.load(f)
+        self.mcp_connections = get_cloud_platform_mcp_connections()
 
     async def __call__(self, state: AgentState) -> Dict[str, Any]:
         print("💡 [FinOpsAgent] 开始进行成本优化分析...")
@@ -81,7 +70,7 @@ class FinOpsAgentNode:
     """
 
         client = MultiServerMCPClient(
-            connections=self.mcp_config.get("mcpServers", {}),
+            connections=self.mcp_connections,
             tool_interceptors=[UserIdInjector()]
         )
 

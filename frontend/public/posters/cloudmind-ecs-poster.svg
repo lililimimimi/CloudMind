@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" role="img" aria-labelledby="title desc">
+  <title id="title">CloudMind ECS promotion poster</title>
+  <desc id="desc">A futuristic cloud server promotion poster with blue lighting.</desc>
+  <defs>
+    <linearGradient id="bg" x1="80" y1="40" x2="920" y2="980" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0d3b8f"/>
+      <stop offset="0.48" stop-color="#1465f4"/>
+      <stop offset="1" stop-color="#19b6c8"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="240" y1="220" x2="784" y2="850" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.28"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0.08"/>
+    </linearGradient>
+    <filter id="softShadow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="28" stdDeviation="36" flood-color="#001742" flood-opacity="0.34"/>
+    </filter>
+  </defs>
+  <rect width="1024" height="1024" fill="url(#bg)"/>
+  <circle cx="790" cy="160" r="210" fill="#ffffff" opacity="0.12"/>
+  <circle cx="170" cy="850" r="260" fill="#06143d" opacity="0.22"/>
+  <path d="M100 270 C260 170 370 340 520 245 C680 145 790 260 930 185" fill="none" stroke="#ffffff" stroke-width="4" opacity="0.18"/>
+  <path d="M92 750 C250 650 380 820 530 720 C700 610 810 725 938 650" fill="none" stroke="#8af4ff" stroke-width="5" opacity="0.22"/>
+  <g filter="url(#softShadow)">
+    <rect x="190" y="210" width="644" height="570" rx="38" fill="url(#panel)" stroke="#ffffff" stroke-opacity="0.42" stroke-width="2"/>
+    <rect x="254" y="320" width="516" height="86" rx="18" fill="#071e55" opacity="0.74"/>
+    <rect x="254" y="448" width="516" height="86" rx="18" fill="#071e55" opacity="0.64"/>
+    <rect x="254" y="576" width="516" height="86" rx="18" fill="#071e55" opacity="0.54"/>
+    <circle cx="314" cy="363" r="16" fill="#42e8ff"/>
+    <circle cx="314" cy="491" r="16" fill="#42e8ff"/>
+    <circle cx="314" cy="619" r="16" fill="#42e8ff"/>
+    <rect x="360" y="347" width="332" height="12" rx="6" fill="#d8f7ff" opacity="0.88"/>
+    <rect x="360" y="374" width="250" height="12" rx="6" fill="#d8f7ff" opacity="0.58"/>
+    <rect x="360" y="475" width="332" height="12" rx="6" fill="#d8f7ff" opacity="0.78"/>
+    <rect x="360" y="502" width="215" height="12" rx="6" fill="#d8f7ff" opacity="0.5"/>
+    <rect x="360" y="603" width="332" height="12" rx="6" fill="#d8f7ff" opacity="0.7"/>
+    <rect x="360" y="630" width="280" height="12" rx="6" fill="#d8f7ff" opacity="0.46"/>
+  </g>
+  <g fill="#ffffff">
+    <text x="512" y="135" text-anchor="middle" font-family="Arial, sans-serif" font-size="42" font-weight="700">CloudMind ECS</text>
+    <text x="512" y="860" text-anchor="middle" font-family="Arial, sans-serif" font-size="34" font-weight="700">Elastic Compute Service</text>
+    <text x="512" y="908" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" opacity="0.82">High performance cloud server promotion</text>
+  </g>
+</svg>

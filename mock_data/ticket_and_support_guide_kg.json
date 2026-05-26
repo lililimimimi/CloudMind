@@ -1,0 +1,443 @@
+{
+  "nodes": [
+    {
+      "id": "智能客服 (L1/L2)",
+      "label": "智能客服 (L1/L2)",
+      "properties": [
+        {
+          "key": "响应时间",
+          "value": "7x24 小时实时响应"
+        }
+      ]
+    },
+    {
+      "id": "L1 (语义缓存直返)",
+      "label": "L1 (语义缓存直返)",
+      "properties": [
+        {
+          "key": "适用场景",
+          "value": "解决高频标准化问题"
+        }
+      ]
+    },
+    {
+      "id": "L2 (大模型检索增强)",
+      "label": "L2 (大模型检索增强)",
+      "properties": [
+        {
+          "key": "适用场景",
+          "value": "解决多条件约束的复杂问题"
+        }
+      ]
+    },
+    {
+      "id": "人工工单支持 (Ticket Support)",
+      "label": "人工工单支持 (Ticket Support)",
+      "properties": []
+    },
+    {
+      "id": "基础服务 (Basic)",
+      "label": "基础服务 (Basic)",
+      "properties": [
+        {
+          "key": "响应时间",
+          "value": "工作日 9:00-18:00 响应"
+        },
+        {
+          "key": "首次回复时间",
+          "value": "4-8 小时内首次回复"
+        },
+        {
+          "key": "适用场景",
+          "value": "适用于常规咨询"
+        }
+      ]
+    },
+    {
+      "id": "企业级支持 (Enterprise)",
+      "label": "企业级支持 (Enterprise)",
+      "properties": [
+        {
+          "key": "响应时间",
+          "value": "7x24 小时响应"
+        },
+        {
+          "key": "P1 级别故障响应时间",
+          "value": "15 分钟内响应"
+        }
+      ]
+    },
+    {
+      "id": "工单提交建议",
+      "label": "工单提交建议",
+      "properties": []
+    },
+    {
+      "id": "实例 ID (如 i-bp1xxx)",
+      "label": "实例 ID (如 i-bp1xxx)",
+      "properties": []
+    },
+    {
+      "id": "地域 (Region)",
+      "label": "地域 (Region)",
+      "properties": []
+    },
+    {
+      "id": "报错信息截图",
+      "label": "报错信息截图",
+      "properties": []
+    },
+    {
+      "id": "具体的错误码 (如 InvalidInstanceType.NotFound)",
+      "label": "具体的错误码 (如 InvalidInstanceType.NotFound)",
+      "properties": []
+    },
+    {
+      "id": "资源变配与扩容失败",
+      "label": "资源变配与扩容失败",
+      "properties": []
+    },
+    {
+      "id": "计算与网络 > 实例规格变配",
+      "label": "计算与网络 > 实例规格变配",
+      "properties": []
+    },
+    {
+      "id": "ecs.c7.large 升级为 ecs.g8a.xlarge 库存不足",
+      "label": "ecs.c7.large 升级为 ecs.g8a.xlarge 库存不足",
+      "properties": []
+    },
+    {
+      "id": "ecs.c7.large 升级为 ecs.g8a.xlarge 不支持的变配路径",
+      "label": "ecs.c7.large 升级为 ecs.g8a.xlarge 不支持的变配路径",
+      "properties": []
+    },
+    {
+      "id": "ecs.g8a.xlarge",
+      "label": "ecs.g8a.xlarge",
+      "properties": []
+    },
+    {
+      "id": "ecs.c7.large",
+      "label": "ecs.c7.large",
+      "properties": []
+    },
+    {
+      "id": "网络不通与延迟高",
+      "label": "网络不通与延迟高",
+      "properties": []
+    },
+    {
+      "id": "网络与安全 > 专有网络 VPC / 弹性公网 IP",
+      "label": "网络与安全 > 专有网络 VPC / 弹性公网 IP",
+      "properties": []
+    },
+    {
+      "id": "实例无法访问外网",
+      "label": "实例无法访问外网",
+      "properties": []
+    },
+    {
+      "id": "外部无法通过 SSH 登录",
+      "label": "外部无法通过 SSH 登录",
+      "properties": []
+    },
+    {
+      "id": "两个不同地域的 VPC 之间无法内网互通",
+      "label": "两个不同地域的 VPC 之间无法内网互通",
+      "properties": []
+    },
+    {
+      "id": "安全组配置错误",
+      "label": "安全组配置错误",
+      "properties": []
+    },
+    {
+      "id": "未绑定 EIP",
+      "label": "未绑定 EIP",
+      "properties": []
+    },
+    {
+      "id": "安全组的入方向规则截图",
+      "label": "安全组的入方向规则截图",
+      "properties": []
+    },
+    {
+      "id": "VPC 路由表中是否存在目标网段的路由条目",
+      "label": "VPC 路由表中是否存在目标网段的路由条目",
+      "properties": []
+    },
+    {
+      "id": "账单与费用争议",
+      "label": "账单与费用争议",
+      "properties": []
+    },
+    {
+      "id": "财务与账单 > 退订与退款",
+      "label": "财务与账单 > 退订与退款",
+      "properties": []
+    },
+    {
+      "id": "用户申请“五天无理由退款”被拒绝",
+      "label": "用户申请“五天无理由退款”被拒绝",
+      "properties": []
+    },
+    {
+      "id": "按量付费实例已关机，但账户仍然在持续扣费",
+      "label": "按量付费实例已关机，但账户仍然在持续扣费",
+      "properties": []
+    },
+    {
+      "id": "退款额度超限",
+      "label": "退款额度超限",
+      "properties": []
+    },
+    {
+      "id": "本地盘实例不支持停机不收费",
+      "label": "本地盘实例不支持停机不收费",
+      "properties": []
+    },
+    {
+      "id": "底层系统维护与自动演练",
+      "label": "底层系统维护与自动演练",
+      "properties": []
+    },
+    {
+      "id": "系统事件 (System Events)",
+      "label": "系统事件 (System Events)",
+      "properties": []
+    },
+    {
+      "id": "云平台会定期对底层物理机（宿主机）进行升级、补丁修复或硬件替换",
+      "label": "云平台会定期对底层物理机（宿主机）进行升级、补丁修复或硬件替换",
+      "properties": []
+    },
+    {
+      "id": "实例将发生重启或迁移的通知",
+      "label": "实例将发生重启或迁移的通知",
+      "properties": []
+    },
+    {
+      "id": "高可用版 RDS (主备双节点)",
+      "label": "高可用版 RDS (主备双节点)",
+      "properties": []
+    },
+    {
+      "id": "跨可用区部署的 ECS 集群",
+      "label": "跨可用区部署的 ECS 集群",
+      "properties": []
+    }
+  ],
+  "edges": [
+    {
+      "source": "底层系统维护与自动演练",
+      "type": "HAS_SUGGESTION",
+      "target": "跨可用区部署的 ECS 集群"
+    },
+    {
+      "source": "网络不通与延迟高",
+      "type": "HAS_PROBLEM",
+      "target": "两个不同地域的 VPC 之间无法内网互通"
+    },
+    {
+      "source": "企业级支持 (Enterprise)",
+      "type": "HAS_RESPONSE_TIME",
+      "target": "P1 级别故障在 15 分钟内响应"
+    },
+    {
+      "source": "网络不通与延迟高",
+      "type": "HAS_SUGGESTION",
+      "target": "VPC 路由表中是否存在目标网段的路由条目"
+    },
+    {
+      "source": "账单与费用争议",
+      "type": "HAS_PROBLEM",
+      "target": "按量付费实例已关机，但账户仍然在持续扣费"
+    },
+    {
+      "source": "网络不通与延迟高",
+      "type": "HAS_TYPE",
+      "target": "网络与安全 > 专有网络 VPC / 弹性公网 IP"
+    },
+    {
+      "source": "基础服务 (Basic)",
+      "type": "HAS_RESPONSE_TIME",
+      "target": "工作日 9:00-18:00 响应"
+    },
+    {
+      "source": "L1 (语义缓存直返)",
+      "type": "SUPPORTS",
+      "target": "如何查询实例详情？"
+    },
+    {
+      "source": "工单提交建议",
+      "type": "REQUIRES",
+      "target": "报错信息截图"
+    },
+    {
+      "source": "工单提交建议",
+      "type": "REQUIRES",
+      "target": "具体的错误码 (如 InvalidInstanceType.NotFound)"
+    },
+    {
+      "source": "资源变配与扩容失败",
+      "type": "HAS_SUGGESTION",
+      "target": "智能客服 (L1/L2)"
+    },
+    {
+      "source": "账单与费用争议",
+      "type": "HAS_TYPE",
+      "target": "财务与账单 > 退订与退款"
+    },
+    {
+      "source": "网络不通与延迟高",
+      "type": "HAS_PROBLEM",
+      "target": "外部无法通过 SSH 登录"
+    },
+    {
+      "source": "L1 (语义缓存直返)",
+      "type": "SUPPORTS",
+      "target": "ecs.g8a.xlarge 的带宽上限是多少？"
+    },
+    {
+      "source": "资源变配与扩容失败",
+      "type": "INVOLVES",
+      "target": "ecs.c7.large"
+    },
+    {
+      "source": "网络不通与延迟高",
+      "type": "HAS_SUGGESTION",
+      "target": "安全组的入方向规则截图"
+    },
+    {
+      "source": "智能客服 (L1/L2)",
+      "type": "CONTAINS",
+      "target": "L2 (大模型检索增强)"
+    },
+    {
+      "source": "账单与费用争议",
+      "type": "HAS_CAUSE",
+      "target": "退款额度超限"
+    },
+    {
+      "source": "L1 (语义缓存直返)",
+      "type": "SUPPORTS",
+      "target": "包年包月退款手续费是多少？"
+    },
+    {
+      "source": "智能客服 (L1/L2)",
+      "type": "CONTAINS",
+      "target": "L1 (语义缓存直返)"
+    },
+    {
+      "source": "账单与费用争议",
+      "type": "HAS_PROBLEM",
+      "target": "用户申请“五天无理由退款”被拒绝"
+    },
+    {
+      "source": "企业级支持 (Enterprise)",
+      "type": "HAS_RESPONSE_TIME",
+      "target": "7x24 小时响应"
+    },
+    {
+      "source": "资源变配与扩容失败",
+      "type": "HAS_PROBLEM",
+      "target": "ecs.c7.large 升级为 ecs.g8a.xlarge 库存不足"
+    },
+    {
+      "source": "网络不通与延迟高",
+      "type": "HAS_CAUSE",
+      "target": "安全组配置错误"
+    },
+    {
+      "source": "账单与费用争议",
+      "type": "HAS_CAUSE",
+      "target": "本地盘实例不支持停机不收费"
+    },
+    {
+      "source": "基础服务 (Basic)",
+      "type": "HAS_RESPONSE_TIME",
+      "target": "4-8 小时内首次回复"
+    },
+    {
+      "source": "人工工单支持 (Ticket Support)",
+      "type": "CONTAINS",
+      "target": "企业级支持 (Enterprise)"
+    },
+    {
+      "source": "底层系统维护与自动演练",
+      "type": "HAS_NOTIFICATION",
+      "target": "实例将发生重启或迁移的通知"
+    },
+    {
+      "source": "人工工单支持 (Ticket Support)",
+      "type": "CONTAINS",
+      "target": "基础服务 (Basic)"
+    },
+    {
+      "source": "智能客服 (L1/L2)",
+      "type": "UPGRADES_TO",
+      "target": "人工工单支持 (Ticket Support)"
+    },
+    {
+      "source": "L2 (大模型检索增强)",
+      "type": "SUPPORTS",
+      "target": "我的 ECS 连不上 RDS，需要排查哪些网络和安全组配置？"
+    },
+    {
+      "source": "资源变配与扩容失败",
+      "type": "HAS_PROBLEM",
+      "target": "ecs.c7.large 升级为 ecs.g8a.xlarge 不支持的变配路径"
+    },
+    {
+      "source": "底层系统维护与自动演练",
+      "type": "HAS_SUGGESTION",
+      "target": "高可用版 RDS (主备双节点)"
+    },
+    {
+      "source": "底层系统维护与自动演练",
+      "type": "HAS_EVENT",
+      "target": "系统事件 (System Events)"
+    },
+    {
+      "source": "工单提交建议",
+      "type": "REQUIRES",
+      "target": "地域 (Region)"
+    },
+    {
+      "source": "网络不通与延迟高",
+      "type": "HAS_CAUSE",
+      "target": "未绑定 EIP"
+    },
+    {
+      "source": "资源变配与扩容失败",
+      "type": "INVOLVES",
+      "target": "ecs.g8a.xlarge"
+    },
+    {
+      "source": "网络不通与延迟高",
+      "type": "HAS_PROBLEM",
+      "target": "实例无法访问外网"
+    },
+    {
+      "source": "工单提交建议",
+      "type": "REQUIRES",
+      "target": "实例 ID (如 i-bp1xxx)"
+    },
+    {
+      "source": "系统事件 (System Events)",
+      "type": "HAS_DESCRIPTION",
+      "target": "云平台会定期对底层物理机（宿主机）进行升级、补丁修复或硬件替换"
+    },
+    {
+      "source": "资源变配与扩容失败",
+      "type": "HAS_TYPE",
+      "target": "计算与网络 > 实例规格变配"
+    },
+    {
+      "source": "L2 (大模型检索增强)",
+      "type": "SUPPORTS",
+      "target": "北京可用区 K 支持哪些带 GPU 的抢占式实例且能装 Windows？"
+    }
+  ]
+}

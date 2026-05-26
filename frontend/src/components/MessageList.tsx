@@ -2,11 +2,49 @@
 import { useEffect, useRef } from "react";
 import { Avatar } from "antd";
 import { RobotOutlined, UserOutlined } from "@ant-design/icons";
+import type { ReactNode } from "react";
 import type { Message } from "./ChatWindow";
 
 interface Props {
   messages: Message[];
   loading: boolean;
+}
+
+function renderInlineMarkdown(text: string): ReactNode {
+  const linkMatch = text.match(/\[(.+?)\]\((.+?)\)/);
+  if (linkMatch) {
+    const before = text.slice(0, text.indexOf(linkMatch[0]));
+    const after = text.slice(text.indexOf(linkMatch[0]) + linkMatch[0].length);
+    return (
+      <>
+        {renderInlineMarkdown(before)}
+        <a
+          href={linkMatch[2]}
+          target="_blank"
+          rel="noreferrer"
+          style={{ color: "#4f8ef7", textDecoration: "underline" }}
+        >
+          {linkMatch[1]}
+        </a>
+        {renderInlineMarkdown(after)}
+      </>
+    );
+  }
+
+  const boldMatch = text.match(/\*\*(.+?)\*\*/);
+  if (boldMatch) {
+    const before = text.slice(0, text.indexOf(boldMatch[0]));
+    const after = text.slice(text.indexOf(boldMatch[0]) + boldMatch[0].length);
+    return (
+      <>
+        {renderInlineMarkdown(before)}
+        <strong>{boldMatch[1]}</strong>
+        {renderInlineMarkdown(after)}
+      </>
+    );
+  }
+
+  return text.replace(/<br>/g, "");
 }
 
 function renderContent(content: string) {
@@ -57,31 +95,34 @@ function renderContent(content: string) {
       );
     }
 
-    // 检测 markdown 链接 [text](url)
-    const linkMatch = line.match(/\[(.+?)\]\((.+?)\)/);
-    if (linkMatch) {
-      const before = line.slice(0, line.indexOf(linkMatch[0]));
-      const after = line.slice(
-        line.indexOf(linkMatch[0]) + linkMatch[0].length,
-      );
+    const headingMatch = line.match(/^(#{1,6})\s+(.+)$/);
+    if (headingMatch) {
       return (
-        <div key={idx}>
-          <span>{before}</span>
-          <a
-            href={linkMatch[2]}
-            target="_blank"
-            rel="noreferrer"
-            style={{ color: "#4f8ef7", textDecoration: "underline" }}
-          >
-            {linkMatch[1]}
-          </a>
-          <span>{after}</span>
+        <div
+          key={idx}
+          style={{
+            fontSize: "16px",
+            fontWeight: 700,
+            margin: idx === 0 ? "0 0 8px" : "18px 0 8px",
+          }}
+        >
+          {renderInlineMarkdown(headingMatch[2])}
+        </div>
+      );
+    }
+
+    const listMatch = line.match(/^\s*[-*]\s+(.+)$/);
+    if (listMatch) {
+      return (
+        <div key={idx} style={{ display: "flex", gap: "8px" }}>
+          <span>•</span>
+          <span>{renderInlineMarkdown(listMatch[1])}</span>
         </div>
       );
     }
 
     // 普通文字
-    return <div key={idx}>{line.replace(/<br>/g, "") || "\u00A0"}</div>;
+    return <div key={idx}>{line ? renderInlineMarkdown(line) : "\u00A0"}</div>;
   });
 }
 

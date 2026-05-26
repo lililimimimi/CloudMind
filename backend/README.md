@@ -179,8 +179,9 @@ curl -N http://localhost:8000/api/chat \
 - 前端默认请求 `http://localhost:8000/api/chat`。
 - 后端启动时会导入 `../agent` 到 Python path，因此需要保持当前目录结构。
 - Agent 侧还会读取 `agent/.env`，不要只配置 `backend/.env`。
+- CORS 白名单通过 `CORS_ORIGINS` 配置，默认允许 `http://localhost:5173` 和 `http://127.0.0.1:5173`。本地开发还默认通过 `CORS_ORIGIN_REGEX` 允许 `localhost` / `127.0.0.1` 的任意端口，方便 Vite 自动换端口。
 - Redis 或 Milvus 不可用时，记忆/缓存能力会降级，但主流程仍可继续。
-- 账单、推广和 FinOps 能力依赖 MCP Server，MCP 配置位于 `agent/config/mcp_servers.json`。
+- 账单、推广和 FinOps 能力依赖 MCP Server，运行时 MCP 配置由 `agent/config/mcp_runtime.py` 动态生成。
 
 ## 常见问题
 
@@ -195,4 +196,3 @@ curl -N http://localhost:8000/api/chat \
 ### 账单查询失败
 
 检查 MySQL 是否启动、`mock_data/init.sql` 是否已导入，以及 MCP Server 的 Python 路径是否正确。
-

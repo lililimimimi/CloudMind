@@ -73,9 +73,21 @@ class ChatService:
         """处理用户问题，分块流式返回结果"""
 
         try:
+            history = await self.memory.get_recent_messages(user_id, session_id)
+            has_history = bool(history)
+
             # -------------------------------------------------------
-            # 1. 查语义缓存
+            # 1. 读取记忆上下文
             # -------------------------------------------------------
+            memory_context = await self.memory.get_memory_context(
+                user_id, session_id, query
+            )
+            has_memory_context = bool(memory_context.strip())
+
+            # -------------------------------------------------------
+            # 2. 查语义缓存
+            # -------------------------------------------------------
+            # 有对话历史或长期记忆时，必须进入 Agent 工作流，避免缓存答案绕过个性化上下文。
             cache_hit = await semantic_cache.get_cache(query, user_id)
             if cache_hit:
                 answer = cache_hit["answer"]
@@ -89,16 +101,10 @@ class ChatService:
                 return
 
             # -------------------------------------------------------
-            # 2. 读取记忆上下文
+            # 3. 调用 Agent 工作流
             # -------------------------------------------------------
             print("🏃 [ChatService] 缓存未命中，进入 Agent 工作流...")
 
-            memory_context = await self.memory.get_memory_context(
-                user_id, session_id, query
-            )
-
-            # 读取近期对话历史
-            history = await self.memory.get_recent_messages(user_id, session_id)
             history_messages = []
             for msg in history:
                 if msg["role"] == "human":
@@ -113,9 +119,6 @@ class ChatService:
 
             print(f"[ChatService] 历史消息数：{len(recent_history)}，当前问题：{query}")
 
-            # -------------------------------------------------------
-            # 3. 调用 Agent 图
-            # -------------------------------------------------------
             state = {
                 "messages": all_messages,
                 "user_id": user_id,
@@ -138,12 +141,13 @@ class ChatService:
             personal_keywords = ["账单", "订单", "实例", "我的", "查询"]
             is_personal = any(kw in query for kw in personal_keywords)
 
-            await semantic_cache.set_cache(
-                query=query,
-                response=answer,
-                user_id=user_id if is_personal else None,
-                scope="user" if is_personal else "public",
-            )
+            if not has_history:
+                await semantic_cache.set_cache(
+                    query=query,
+                    response=answer,
+                    user_id=user_id if is_personal else None,
+                    scope="user" if is_personal else "public",
+                )
 
             # -------------------------------------------------------
             # 5. 保存对话到短期记忆

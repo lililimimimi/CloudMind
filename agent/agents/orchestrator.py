@@ -42,15 +42,45 @@ class OrchestratorAgent:
 4. recommendation_agent → 业务场景选型、推荐具体实例型号
 5. finops_agent_trigger → 降本增效、成本优化、资源闲置分析
 
-路由规则：
-- "Java+MySQL 推荐实例" → recommendation_agent
-- "帮我查账单/实例" → billing_agent
-- "账单太贵/帮我省钱" → finops_agent_trigger
-- "ECS 是什么/怎么用" → product_agent
-- "我要推广/生成海报" → promotion_agent
+
+路由细则：
+- 用户问"退款规则/退款政策/退款限制/退款条件" → product_agent（这是知识类问题）
+- 用户问"帮我查账单/查订单/查实例" → billing_agent（这是查数据）
+- 用户问"账单太贵/帮我省钱" → finops_agent_trigger
+- 用户问"ECS是什么/怎么用/有什么特性" → product_agent
+- 用户问"推荐实例/选型" → recommendation_agent
+- 用户问"推广/海报/返佣" → promotion_agent
 
 只输出一个 Agent 名称，不要输出任何其他内容。
 如果无法判断，默认输出 product_agent。"""
+
+    @staticmethod
+    def _message_content(message: Any) -> str:
+        if hasattr(message, "content"):
+            return str(message.content)
+        return str(message)
+
+    @staticmethod
+    def _looks_like_promotion_selection(user_input: str, context: str) -> bool:
+        promotion_context_markers = ["推广", "海报", "返佣", "活动", "专属链接"]
+        selection_context_markers = ["选择", "哪一款", "序号", "请选择", "找到"]
+        selection_markers = [
+            "ecs.",
+            "gpu",
+            "第",
+            "实例",
+            "1",
+            "2",
+            "3",
+            "一",
+            "二",
+            "三",
+        ]
+
+        has_promotion_context = any(k in context for k in promotion_context_markers)
+        has_selection_context = any(k in context for k in selection_context_markers)
+        has_selection_input = any(k in user_input.lower() for k in selection_markers)
+        return has_promotion_context and has_selection_context and has_selection_input
 
     async def route(self, state: AgentState) -> Dict[str, Any]:
         """
@@ -65,12 +95,20 @@ class OrchestratorAgent:
 
         # 获取最后一条消息的内容
         last_msg = messages[-1]
-        if hasattr(last_msg, "content"):
-            user_input = last_msg.content
-        else:
-            user_input = str(last_msg)
+        user_input = self._message_content(last_msg)
 
         print(f"[Orchestrator] 收到问题：{user_input}")
+
+        recent_context = "\n".join(self._message_content(msg) for msg in messages[-4:-1])
+        metadata = state.get("metadata", {})
+
+        if self._looks_like_promotion_selection(user_input, recent_context):
+            metadata["is_finops_workflow"] = False
+            print("[Orchestrator] 检测到推广流程中的产品选择，继续路由到 promotion_agent")
+            return {
+                "next_agent": "promotion_agent",
+                "metadata": metadata,
+            }
 
         # 调用 AI 判断意图
         response = await self.llm.ainvoke([
@@ -82,9 +120,6 @@ class OrchestratorAgent:
         decision = response.content.strip().lower()
 
         print(f"[Orchestrator] 判断结果：{decision}")
-
-        # 初始化 metadata
-        metadata = state.get("metadata", {})
 
         # 根据意图决定下一个 Agent
         if "finops" in decision:

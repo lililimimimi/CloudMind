@@ -71,6 +71,13 @@ http://localhost:5173
 http://localhost:8000/api/chat
 ```
 
+可通过 `.env` 覆盖：
+
+```env
+VITE_API_BASE_URL=http://localhost:8000
+VITE_DEMO_USER_ID=user_1001
+```
+
 因此启动前端前，请先确保后端服务运行在 `localhost:8000`。
 
 ## 可用命令
@@ -158,7 +165,7 @@ data: {"done":true}
 
 - 当前 `user_id` 固定为 `user_1001`，适合配合 `mock_data/init.sql` 中的模拟数据测试。
 - 历史对话只保存在浏览器内存中，刷新页面会丢失。
-- 后端地址目前写死为 `http://localhost:8000/api/chat`，部署时建议抽成 Vite 环境变量。
+- 后端地址通过 `VITE_API_BASE_URL` 配置，默认值是 `http://localhost:8000`。
 - 当前 SSE 解析按换行切分，后端保持 `data: {...}\n\n` 格式即可。
 - 图片和链接渲染只支持简单 Markdown 语法，不是完整 Markdown 解析器。
 
@@ -180,11 +187,8 @@ http://localhost:8000
 
 ### 想改后端地址
 
-当前地址在 `src/components/ChatWindow.tsx`：
+当前地址可通过 `.env` 配置：
 
-```ts
-fetch("http://localhost:8000/api/chat", ...)
+```env
+VITE_API_BASE_URL=https://your-api.example.com
 ```
-
-生产部署时建议改为环境变量，例如 `VITE_API_BASE_URL`。
-

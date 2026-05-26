@@ -1,0 +1,512 @@
+{
+  "nodes": [
+    {
+      "id": "云数据库 RDS",
+      "label": "Product",
+      "properties": [
+        {
+          "key": "底层计算节点",
+          "value": "ECS 实例"
+        },
+        {
+          "key": "底层存储节点",
+          "value": "ESSD 云盘"
+        }
+      ]
+    },
+    {
+      "id": "阿里云飞天架构",
+      "label": "Architecture",
+      "properties": []
+    },
+    {
+      "id": "ECS 实例",
+      "label": "InstanceType",
+      "properties": [
+        {
+          "key": "示例规格",
+          "value": "ecs.c7.large, ecs.g8a.4xlarge, ecs.g8a.xlarge, ecs.c7.8xlarge"
+        }
+      ]
+    },
+    {
+      "id": "ESSD 云盘",
+      "label": "Storage",
+      "properties": [
+        {
+          "key": "示例类型",
+          "value": "ESSD PL1"
+        }
+      ]
+    },
+    {
+      "id": "RDS MySQL",
+      "label": "Product",
+      "properties": [
+        {
+          "key": "版本支持",
+          "value": "5.7, 8.0"
+        },
+        {
+          "key": "适用场景",
+          "value": "高并发交易系统, 互联网社交, 游戏数据存储"
+        }
+      ]
+    },
+    {
+      "id": "5.7",
+      "label": "Version",
+      "properties": []
+    },
+    {
+      "id": "8.0",
+      "label": "Version",
+      "properties": []
+    },
+    {
+      "id": "RDS PostgreSQL",
+      "label": "Product",
+      "properties": [
+        {
+          "key": "版本支持",
+          "value": "13, 14, 15"
+        },
+        {
+          "key": "适用场景",
+          "value": "GIS 地理信息系统, 复杂金融数据处理, 推荐系统"
+        }
+      ]
+    },
+    {
+      "id": "13",
+      "label": "Version",
+      "properties": []
+    },
+    {
+      "id": "14",
+      "label": "Version",
+      "properties": []
+    },
+    {
+      "id": "15",
+      "label": "Version",
+      "properties": []
+    },
+    {
+      "id": "基础版 RDS",
+      "label": "Product",
+      "properties": [
+        {
+          "key": "架构",
+          "value": "单节点部署，无备用节点"
+        },
+        {
+          "key": "缺陷",
+          "value": "当底层 ECS 宿主机发生硬件故障时，实例会宕机数分钟直至在另一台物理机上恢复，期间业务中断"
+        },
+        {
+          "key": "适用场景",
+          "value": "个人博客, 开发测试环境"
+        }
+      ]
+    },
+    {
+      "id": "单节点部署",
+      "label": "Feature",
+      "properties": []
+    },
+    {
+      "id": "ESSD PL1",
+      "label": "Storage",
+      "properties": []
+    },
+    {
+      "id": "高可用版 RDS",
+      "label": "Product",
+      "properties": [
+        {
+          "key": "架构",
+          "value": "一主一备（Master-Standby）双节点架构"
+        },
+        {
+          "key": "同城容灾部署",
+          "value": "强烈建议将主备节点部署在不同的可用区"
+        },
+        {
+          "key": "故障转移 (Failover)",
+          "value": "如果可用区 K 发生电力故障导致主节点宕机，RDS 系统会在 30 秒内自动将 VIP 漂移到可用区 L 的备节点上，业务代码无需修改任何连接串即可恢复服务"
+        }
+      ]
+    },
+    {
+      "id": "一主一备双节点架构",
+      "label": "Feature",
+      "properties": []
+    },
+    {
+      "id": "华北2（北京）可用区 K (cn-beijing-k)",
+      "label": "Region",
+      "properties": []
+    },
+    {
+      "id": "华北2（北京）可用区 L (cn-beijing-l)",
+      "label": "Region",
+      "properties": []
+    },
+    {
+      "id": "故障转移 (Failover)",
+      "label": "Feature",
+      "properties": [
+        {
+          "key": "时间",
+          "value": "30 秒内"
+        },
+        {
+          "key": "自动漂移",
+          "value": "VIP 漂移到备节点"
+        },
+        {
+          "key": "无需修改连接串",
+          "value": "业务代码无需修改任何连接串即可恢复服务"
+        }
+      ]
+    },
+    {
+      "id": "读写分离架构",
+      "label": "Feature",
+      "properties": [
+        {
+          "key": "支持挂载",
+          "value": "最多 10 个只读实例"
+        },
+        {
+          "key": "读写分离地址",
+          "value": "如 rm-bp1xxx.mysql.rds.aliyuncs.com"
+        },
+        {
+          "key": "写请求路由",
+          "value": "自动路由到主节点"
+        },
+        {
+          "key": "读请求分发",
+          "value": "根据权重自动分发到各个只读实例"
+        }
+      ]
+    },
+    {
+      "id": "ecs.c7.8xlarge",
+      "label": "InstanceType",
+      "properties": [
+        {
+          "key": "适用场景",
+          "value": "高并发 Web 服务器"
+        }
+      ]
+    },
+    {
+      "id": "只读实例 (Read-Only Instance)",
+      "label": "Feature",
+      "properties": [
+        {
+          "key": "数量",
+          "value": "最多 10 个"
+        }
+      ]
+    },
+    {
+      "id": "读写分离地址",
+      "label": "Feature",
+      "properties": [
+        {
+          "key": "示例",
+          "value": "rm-bp1xxx.mysql.rds.aliyuncs.com"
+        }
+      ]
+    },
+    {
+      "id": "ECS 与 RDS 内网互通",
+      "label": "Feature",
+      "properties": [
+        {
+          "key": "前置条件",
+          "value": "地域与网络相同, RDS 白名单授权, ECS 出方向安全组放行"
+        }
+      ]
+    },
+    {
+      "id": "地域与网络相同",
+      "label": "Precondition",
+      "properties": [
+        {
+          "key": "地域",
+          "value": "同一个地域（如华北2 北京）"
+        },
+        {
+          "key": "网络",
+          "value": "同一个专有网络 VPC（如 vpc-prod-beijing）"
+        }
+      ]
+    },
+    {
+      "id": "RDS 白名单授权",
+      "label": "Precondition",
+      "properties": [
+        {
+          "key": "授权对象",
+          "value": "私网 IP（如 10.0.0.15）, VPC 网段（如 10.0.0.0/16）"
+        }
+      ]
+    },
+    {
+      "id": "ECS 出方向安全组放行",
+      "label": "Precondition",
+      "properties": [
+        {
+          "key": "目标",
+          "value": "RDS 内网 IP"
+        },
+        {
+          "key": "目标端口",
+          "value": "TCP 3306 (MySQL), TCP 5432 (PostgreSQL)"
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "source": "基础版 RDS",
+      "type": "APPLIES_TO",
+      "target": "个人博客"
+    },
+    {
+      "source": "RDS PostgreSQL",
+      "type": "APPLIES_TO",
+      "target": "推荐系统"
+    },
+    {
+      "source": "基础版 RDS",
+      "type": "MAY_USE",
+      "target": "ESSD PL1"
+    },
+    {
+      "source": "ECS 与 RDS 内网互通",
+      "type": "HAS_PRECONDITION",
+      "target": "ECS 出方向安全组放行"
+    },
+    {
+      "source": "云数据库 RDS",
+      "type": "DEPENDS_ON",
+      "target": "ESSD 云盘"
+    },
+    {
+      "source": "云数据库 RDS",
+      "type": "BASED_ON",
+      "target": "阿里云飞天架构"
+    },
+    {
+      "source": "ECS 与 RDS 内网互通",
+      "type": "REQUIRES",
+      "target": "云数据库 RDS"
+    },
+    {
+      "source": "RDS MySQL",
+      "type": "APPLIES_TO",
+      "target": "互联网社交"
+    },
+    {
+      "source": "ECS 与 RDS 内网互通",
+      "type": "REQUIRES",
+      "target": "ECS 实例"
+    },
+    {
+      "source": "读写分离地址",
+      "type": "HAS_PROPERTY",
+      "target": "rm-bp1xxx.mysql.rds.aliyuncs.com"
+    },
+    {
+      "source": "故障转移 (Failover)",
+      "type": "HAS_PROPERTY",
+      "target": "无需修改连接串"
+    },
+    {
+      "source": "RDS MySQL",
+      "type": "SUPPORTS",
+      "target": "8.0"
+    },
+    {
+      "source": "RDS MySQL",
+      "type": "APPLIES_TO",
+      "target": "高并发交易系统"
+    },
+    {
+      "source": "RDS PostgreSQL",
+      "type": "SUPPORTS",
+      "target": "13"
+    },
+    {
+      "source": "读写分离架构",
+      "type": "HAS_FEATURE",
+      "target": "读写分离地址"
+    },
+    {
+      "source": "读写分离架构",
+      "type": "SUPPORTS",
+      "target": "高可用版 RDS"
+    },
+    {
+      "source": "RDS 白名单授权",
+      "type": "HAS_PROPERTY",
+      "target": "VPC 网段（如 10.0.0.0/16）"
+    },
+    {
+      "source": "RDS PostgreSQL",
+      "type": "APPLIES_TO",
+      "target": "复杂金融数据处理"
+    },
+    {
+      "source": "读写分离架构",
+      "type": "APPLIES_TO",
+      "target": "ecs.c7.8xlarge"
+    },
+    {
+      "source": "RDS PostgreSQL",
+      "type": "SUPPORTS",
+      "target": "15"
+    },
+    {
+      "source": "读写分离架构",
+      "type": "HAS_FEATURE",
+      "target": "只读实例 (Read-Only Instance)"
+    },
+    {
+      "source": "ECS 与 RDS 内网互通",
+      "type": "HAS_PRECONDITION",
+      "target": "RDS 白名单授权"
+    },
+    {
+      "source": "RDS MySQL",
+      "type": "IS_A",
+      "target": "云数据库 RDS"
+    },
+    {
+      "source": "基础版 RDS",
+      "type": "APPLIES_TO",
+      "target": "开发测试环境"
+    },
+    {
+      "source": "RDS PostgreSQL",
+      "type": "SUPPORTS",
+      "target": "14"
+    },
+    {
+      "source": "高可用版 RDS",
+      "type": "REQUIRES",
+      "target": "华北2（北京）可用区 K (cn-beijing-k)"
+    },
+    {
+      "source": "ECS 出方向安全组放行",
+      "type": "HAS_PROPERTY",
+      "target": "目标端口为 TCP 3306 (MySQL)"
+    },
+    {
+      "source": "RDS PostgreSQL",
+      "type": "APPLIES_TO",
+      "target": "GIS 地理信息系统"
+    },
+    {
+      "source": "高可用版 RDS",
+      "type": "HAS_FEATURE",
+      "target": "故障转移 (Failover)"
+    },
+    {
+      "source": "地域与网络相同",
+      "type": "HAS_PROPERTY",
+      "target": "同一个专有网络 VPC（如 vpc-prod-beijing）"
+    },
+    {
+      "source": "ECS 出方向安全组放行",
+      "type": "HAS_PROPERTY",
+      "target": "目标端口为 TCP 5432 (PostgreSQL)"
+    },
+    {
+      "source": "RDS 白名单授权",
+      "type": "HAS_PROPERTY",
+      "target": "私网 IP（如 10.0.0.15）"
+    },
+    {
+      "source": "ECS 与 RDS 内网互通",
+      "type": "HAS_PRECONDITION",
+      "target": "地域与网络相同"
+    },
+    {
+      "source": "RDS MySQL",
+      "type": "SUPPORTS",
+      "target": "5.7"
+    },
+    {
+      "source": "高可用版 RDS",
+      "type": "REQUIRES",
+      "target": "华北2（北京）可用区 L (cn-beijing-l)"
+    },
+    {
+      "source": "读写分离地址",
+      "type": "HAS_PROPERTY",
+      "target": "自动分发到只读实例"
+    },
+    {
+      "source": "RDS MySQL",
+      "type": "APPLIES_TO",
+      "target": "游戏数据存储"
+    },
+    {
+      "source": "高可用版 RDS",
+      "type": "HAS_ARCHITECTURE",
+      "target": "一主一备双节点架构"
+    },
+    {
+      "source": "读写分离地址",
+      "type": "HAS_PROPERTY",
+      "target": "自动路由到主节点"
+    },
+    {
+      "source": "故障转移 (Failover)",
+      "type": "HAS_PROPERTY",
+      "target": "30 秒内自动漂移"
+    },
+    {
+      "source": "高可用版 RDS",
+      "type": "IS_A",
+      "target": "云数据库 RDS"
+    },
+    {
+      "source": "基础版 RDS",
+      "type": "HAS_ARCHITECTURE",
+      "target": "单节点部署"
+    },
+    {
+      "source": "ECS 出方向安全组放行",
+      "type": "HAS_PROPERTY",
+      "target": "目标为 RDS 内网 IP"
+    },
+    {
+      "source": "RDS PostgreSQL",
+      "type": "IS_A",
+      "target": "云数据库 RDS"
+    },
+    {
+      "source": "云数据库 RDS",
+      "type": "DEPENDS_ON",
+      "target": "ECS 实例"
+    },
+    {
+      "source": "地域与网络相同",
+      "type": "HAS_PROPERTY",
+      "target": "同一个地域（如华北2 北京）"
+    },
+    {
+      "source": "基础版 RDS",
+      "type": "IS_A",
+      "target": "云数据库 RDS"
+    }
+  ]
+}

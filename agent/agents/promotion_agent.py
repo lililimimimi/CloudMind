@@ -3,7 +3,6 @@
 # 通过 MCP 工具获取推广物料、生成推广链接、生成 AI 海报
 
 import os
-import json
 from typing import Dict, Any
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
@@ -12,6 +11,7 @@ from langgraph.prebuilt import create_react_agent
 
 from core.workflow.state import AgentState
 from agents.billing_agent import UserIdInjector
+from config.mcp_runtime import get_cloud_platform_mcp_connections
 
 load_dotenv()
 
@@ -30,19 +30,14 @@ class PromotionAgentNode:
             temperature=0.3,
         )
 
-        config_path = os.path.join(
-            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-            'config', 'mcp_servers.json'
-        )
-        with open(config_path, 'r', encoding='utf-8') as f:
-            self.mcp_config = json.load(f)
+        self.mcp_connections = get_cloud_platform_mcp_connections()
 
     async def __call__(self, state: AgentState) -> Dict[str, Any]:
 
         config = {"configurable": {"user_id": state.get("user_id", "unknown")}}
 
         client = MultiServerMCPClient(
-            connections=self.mcp_config.get("mcpServers", {}),
+            connections=self.mcp_connections,
             tool_interceptors=[UserIdInjector()]
         )
         all_tools = await client.get_tools()
@@ -79,7 +74,8 @@ class PromotionAgentNode:
    必须调用 get_promotion_materials 获取专属链接和卖点。
    必须调用 generate_ai_poster 生成海报，自己构思一段英文 prompt，
    例如："A futuristic cloud server room, glowing blue neon lights, high tech"
-   海报生成需要约30秒，调用前告知用户稍等。
+   必须等待 generate_ai_poster 工具返回结果后再输出最终回答。
+   禁止只回复"请稍等"、"正在生成中"、"约30秒"这类等待话术。
 
 注意：
 - 调用 get_promotion_materials 时 user_id 传 "auto"
@@ -89,6 +85,7 @@ class PromotionAgentNode:
   3. 专属推广链接：[点击这里查看活动详情](链接URL)
   4. 海报图片：![产品名称推广海报](图片URL)
 - 文字内容必须在图片前面
+- 如果 generate_ai_poster 返回 fallback=true，也必须使用返回的 poster_url 展示海报图片
 - 用纯中文回答"""
 
         inner_agent = create_react_agent(

@@ -1,0 +1,359 @@
+{
+  "nodes": [
+    {
+      "id": "ecs.g8a.xlarge",
+      "label": "实例规格",
+      "properties": [
+        {
+          "key": "CPU",
+          "value": "4"
+        },
+        {
+          "key": "Memory",
+          "value": "16G"
+        },
+        {
+          "key": "Max ENI Quantity",
+          "value": "3"
+        }
+      ]
+    },
+    {
+      "id": "ecs.c7.large",
+      "label": "实例规格",
+      "properties": [
+        {
+          "key": "CPU",
+          "value": "2"
+        },
+        {
+          "key": "Memory",
+          "value": "4G"
+        },
+        {
+          "key": "Max ENI Quantity",
+          "value": "2"
+        }
+      ]
+    },
+    {
+      "id": "ecs.gn7i-c8g1.2xlarge",
+      "label": "实例规格",
+      "properties": [
+        {
+          "key": "CPU",
+          "value": "8"
+        },
+        {
+          "key": "Memory",
+          "value": "32G"
+        },
+        {
+          "key": "GPU",
+          "value": "1"
+        },
+        {
+          "key": "Min System Disk IOPS",
+          "value": "PL2"
+        }
+      ]
+    },
+    {
+      "id": "ecs.c7.8xlarge",
+      "label": "实例规格",
+      "properties": [
+        {
+          "key": "CPU",
+          "value": "32"
+        },
+        {
+          "key": "Memory",
+          "value": "64G"
+        },
+        {
+          "key": "Max ENI Quantity",
+          "value": "15"
+        }
+      ]
+    },
+    {
+      "id": "本地 NVMe SSD",
+      "label": "存储类型",
+      "properties": []
+    },
+    {
+      "id": "ESSD PL0 云盘",
+      "label": "存储类型",
+      "properties": []
+    },
+    {
+      "id": "ESSD PL2 云盘",
+      "label": "存储类型",
+      "properties": []
+    },
+    {
+      "id": "ESSD PL3 云盘",
+      "label": "存储类型",
+      "properties": []
+    },
+    {
+      "id": "华北2（北京）可用区 G",
+      "label": "地域",
+      "properties": [
+        {
+          "key": "Region",
+          "value": "华北2（北京）"
+        },
+        {
+          "key": "Zone",
+          "value": "G"
+        }
+      ]
+    },
+    {
+      "id": "华北2（北京）可用区 K",
+      "label": "地域",
+      "properties": [
+        {
+          "key": "Region",
+          "value": "华北2（北京）"
+        },
+        {
+          "key": "Zone",
+          "value": "K"
+        }
+      ]
+    },
+    {
+      "id": "华北2（北京）可用区 L",
+      "label": "地域",
+      "properties": [
+        {
+          "key": "Region",
+          "value": "华北2（北京）"
+        },
+        {
+          "key": "Zone",
+          "value": "L"
+        }
+      ]
+    },
+    {
+      "id": "抢占式实例",
+      "label": "实例类型",
+      "properties": []
+    },
+    {
+      "id": "ENI",
+      "label": "功能特性",
+      "properties": []
+    },
+    {
+      "id": "Windows Server 2022 数据中心版",
+      "label": "产品",
+      "properties": [
+        {
+          "key": "vCPU要求",
+          "value": "4 vCPU 及以上"
+        }
+      ]
+    },
+    {
+      "id": "ecs.c7.large (2 vCPU)",
+      "label": "实例规格",
+      "properties": [
+        {
+          "key": "vCPU",
+          "value": "2"
+        },
+        {
+          "key": "最大收发包能力",
+          "value": "50 万 PPS"
+        },
+        {
+          "key": "最大总带宽",
+          "value": "5 Gbps"
+        }
+      ]
+    },
+    {
+      "id": "ecs.g8a.xlarge (4 vCPU)",
+      "label": "实例规格",
+      "properties": [
+        {
+          "key": "vCPU",
+          "value": "4"
+        },
+        {
+          "key": "最大收发包能力",
+          "value": "200 万 PPS"
+        }
+      ]
+    },
+    {
+      "id": "ecs.c7.8xlarge (32 vCPU)",
+      "label": "实例规格",
+      "properties": [
+        {
+          "key": "vCPU",
+          "value": "32"
+        },
+        {
+          "key": "最大收发包能力",
+          "value": "1200 万 PPS"
+        },
+        {
+          "key": "最大总带宽",
+          "value": "40 Gbps"
+        }
+      ]
+    },
+    {
+      "id": "50 万 PPS",
+      "label": "功能特性",
+      "properties": [
+        {
+          "key": "描述",
+          "value": "最大收发包能力"
+        }
+      ]
+    },
+    {
+      "id": "5 Gbps",
+      "label": "功能特性",
+      "properties": [
+        {
+          "key": "描述",
+          "value": "最大总带宽"
+        }
+      ]
+    },
+    {
+      "id": "200 万 PPS",
+      "label": "功能特性",
+      "properties": [
+        {
+          "key": "描述",
+          "value": "最大收发包能力"
+        }
+      ]
+    },
+    {
+      "id": "1200 万 PPS",
+      "label": "功能特性",
+      "properties": [
+        {
+          "key": "描述",
+          "value": "最大收发包能力"
+        }
+      ]
+    },
+    {
+      "id": "40 Gbps",
+      "label": "功能特性",
+      "properties": [
+        {
+          "key": "描述",
+          "value": "最大总带宽"
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "source": "ecs.c7.8xlarge (32 vCPU)",
+      "type": "HAS_FEATURE",
+      "target": "40 Gbps"
+    },
+    {
+      "source": "华北2（北京）可用区 L",
+      "type": "SUPPORTS",
+      "target": "抢占式实例"
+    },
+    {
+      "source": "ecs.g8a.xlarge (4 vCPU)",
+      "type": "HAS_FEATURE",
+      "target": "200 万 PPS"
+    },
+    {
+      "source": "ecs.gn7i-c8g1.2xlarge",
+      "type": "SUPPORTS",
+      "target": "ESSD PL3 云盘"
+    },
+    {
+      "source": "Windows Server 2022 数据中心版",
+      "type": "SUPPORTS",
+      "target": "ecs.g8a.xlarge (4 vCPU)"
+    },
+    {
+      "source": "ecs.gn7i-c8g1.2xlarge",
+      "type": "RESTRICTS",
+      "target": "ESSD PL0 云盘"
+    },
+    {
+      "source": "华北2（北京）可用区 G",
+      "type": "RESTRICTS",
+      "target": "ecs.gn7i-c8g1.2xlarge"
+    },
+    {
+      "source": "ecs.c7.large",
+      "type": "HAS_FEATURE",
+      "target": "ENI"
+    },
+    {
+      "source": "Windows Server 2022 数据中心版",
+      "type": "RESTRICTS",
+      "target": "ecs.c7.large (2 vCPU)"
+    },
+    {
+      "source": "ecs.c7.large (2 vCPU)",
+      "type": "HAS_FEATURE",
+      "target": "50 万 PPS"
+    },
+    {
+      "source": "ecs.g8a.xlarge",
+      "type": "HAS_FEATURE",
+      "target": "ENI"
+    },
+    {
+      "source": "ecs.g8a.xlarge",
+      "type": "RESTRICTS",
+      "target": "本地 NVMe SSD"
+    },
+    {
+      "source": "华北2（北京）可用区 K",
+      "type": "RESTRICTS",
+      "target": "抢占式实例"
+    },
+    {
+      "source": "ecs.c7.8xlarge (32 vCPU)",
+      "type": "HAS_FEATURE",
+      "target": "1200 万 PPS"
+    },
+    {
+      "source": "ecs.c7.large (2 vCPU)",
+      "type": "HAS_FEATURE",
+      "target": "5 Gbps"
+    },
+    {
+      "source": "ecs.c7.large",
+      "type": "RESTRICTS",
+      "target": "本地 NVMe SSD"
+    },
+    {
+      "source": "ecs.gn7i-c8g1.2xlarge",
+      "type": "SUPPORTS",
+      "target": "ESSD PL2 云盘"
+    },
+    {
+      "source": "ecs.c7.8xlarge",
+      "type": "HAS_FEATURE",
+      "target": "ENI"
+    },
+    {
+      "source": "华北2（北京）可用区 K",
+      "type": "SUPPORTS",
+      "target": "ecs.gn7i-c8g1.2xlarge"
+    }
+  ]
+}

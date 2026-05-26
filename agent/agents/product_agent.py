@@ -40,15 +40,19 @@ class ProductAgentNode:
 
 2. query_knowledge_graph（知识图谱）：
    适合：结构化参数、产品关系、实例规格、地域可用区
-   例如：ecs.g8a.xlarge有多少网卡、华北2有哪些可用区
+   例如：ecs.g8a.xlarge有多少网卡、华北2有哪些可用区、五天无理由退款限制
 
-工作要求：
-- 根据问题类型选择合适的工具
-- 结构化参数优先用知识图谱
-- 概念解释优先用向量检索
-- 复杂问题可以同时使用两个工具
-- 数据必须来自工具返回结果，不能编造
-- 如果工具没找到，诚实告知用户
+
+工具使用规则：
+- 退款、计费、政策类问题 → 必须先调用 query_knowledge_graph，再调用 query_vector_db，两个都要调用
+- 结构化参数问题（网卡数、内存、地域）→ 优先用 query_knowledge_graph
+- 概念解释问题 → 优先用 query_vector_db
+- 复杂问题同时使用两个工具
+- 知识图谱结果优先级高于向量检索
+- 以工具返回的数据为准，严禁用训练数据补充
+- 工具找到了数据，以工具数据为准
+- 工具没找到，可以用自己的知识回答，但要说明"根据通用知识"
+- 严禁编造具体数字（如网卡数、内存大小）
 - 用纯中文回答，不要用 markdown 格式"""
 
     async def __call__(self, state: AgentState) -> Dict[str, Any]:
@@ -70,7 +74,7 @@ class ProductAgentNode:
         inner_agent = create_react_agent(
             model=self.llm,
             tools=self.tools,
-            prompt=self.system_prompt,
+            prompt=full_prompt,
         )
 
         result = await inner_agent.ainvoke({

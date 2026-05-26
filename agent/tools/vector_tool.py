@@ -81,7 +81,7 @@ def query_vector_db(query: str) -> str:
     """
     try:
         store = _get_milvus_store()
-        results = store.similarity_search_with_score(query, k=5)
+        results = store.similarity_search_with_score(query, k=8)
 
         if not results:
             return "未在文档中检索到相关信息。"

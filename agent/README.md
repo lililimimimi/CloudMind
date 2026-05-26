@@ -171,20 +171,22 @@ agent/mcp_servers/cloud_platform_server.py
 - `get_promotion_materials`：生成专属推广链接和返佣信息
 - `generate_ai_poster`：调用 DashScope 生成推广海报
 
-MCP 配置位于：
+参考 MCP 配置位于：
 
 ```text
 agent/config/mcp_servers.json
 ```
 
-注意：当前配置里的 `command` 是本机虚拟环境 Python 的绝对路径。换目录或换机器后，需要改成实际存在的 Python 路径，例如：
+实际运行时，Billing、Promotion 和 FinOps Agent 会通过 `agent/config/mcp_runtime.py` 使用当前 Python 解释器和真实的 `cloud_platform_server.py` 路径动态生成 MCP 连接配置，避免写死本机绝对路径。
+
+`agent/config/mcp_servers.json` 可以作为外部 MCP 客户端接入时的参考：
 
 ```json
 {
   "mcpServers": {
     "cloud_platform": {
-      "command": "/absolute/path/to/cloudMind/agent/.venv/bin/python",
-      "args": ["/absolute/path/to/cloudMind/agent/mcp_servers/cloud_platform_server.py"],
+      "command": "python",
+      "args": ["mcp_servers/cloud_platform_server.py"],
       "transport": "stdio"
     }
   }
@@ -289,4 +291,3 @@ python tools/build_kg.py
 ### Promotion 不能生成海报
 
 确认 `DASHSCOPE_API_KEY` 已配置。未配置时，推广链接仍可生成，但 AI 海报工具会返回错误。
-
